@@ -18,7 +18,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FEFCE8] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-[#FEFCE8] flex flex-col items-center justify-center px-6">
       <main className="w-full max-w-md text-center">
         {/* Title */}
         <div className="mb-8">
