@@ -146,9 +146,9 @@ Gold, frankincense, myrrh... what a generous show!"`,
     gps: "33°37'23\"N 78°57'26\"W",
     verse: `"The gifts are all gathered—now where do they go?
 To a LITTLE TOWN humble, where carols all flow.
-Step back OUTSIDE to a village so small,
+Nearby is a village so small,
 With tiny bright buildings that stand proud and tall.
-Red, green, and yellow—where small balls roll through—
+Red, green, and yellow—where small orbs roll through—
 'O Little Town' waited for me and for you!"`,
     scripture: "Micah 5:2",
     scriptureText: "But you, Bethlehem… out of you will come a ruler over Israel.",
