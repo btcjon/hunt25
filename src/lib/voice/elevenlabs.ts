@@ -8,6 +8,7 @@ interface TTSOptions {
   modelId?: string;
   stability?: number;
   similarityBoost?: number;
+  style?: number;
 }
 
 // Global audio controller for stop functionality
@@ -19,8 +20,9 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
     text,
     voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || '245u2NGJdh44gV9eWM9n', // Granddaddy voice
     modelId = 'eleven_turbo_v2_5', // ~75ms latency, 50% cheaper
-    stability = 0.7, // Higher for consistent narration
-    similarityBoost = 0.85, // Higher for custom clone fidelity
+    stability = 0.4, // Lower for expressive adventure narration
+    similarityBoost = 0.85, // High for custom clone fidelity
+    style = 0.7, // Style exaggeration for theatrical delivery
   } = options;
 
   const response = await fetch(`${ELEVENLABS_API_URL}/text-to-speech/${voiceId}/stream`, {
@@ -35,6 +37,7 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
       voice_settings: {
         stability,
         similarity_boost: similarityBoost,
+        style,
       },
     }),
   });
