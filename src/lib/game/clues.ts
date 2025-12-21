@@ -241,7 +241,7 @@ One treasure remains, and it might be the best.
 Find what has HANDS but can't give you a wave,
 A face with no mouth, yet it's perfectly brave.
 WAIT—this one's got eyes! And it's rocking a bow!
-When TIME was just right, God said 'Now is the show!'"`,
+God's timing was perfect... He always knows!"`,
     scripture: "Galatians 4:4",
     scriptureText: "But when the set time had fully come, God sent His Son.",
     hint: "Head back toward where it all started. Something tall tells the time... and it has a friendly face you might recognize!",
