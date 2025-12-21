@@ -56,6 +56,9 @@ ${currentClue ? `
 - Symbol: ${currentClue.symbol} ${currentClue.name}
 - Scripture: ${currentClue.scripture} - "${currentClue.scriptureText}"
 - Hint (level ${context.hintsUsed + 1}): ${currentClue.hint}
+
+VISUAL IDENTIFIERS FOR THIS STOP (use for description matching):
+${currentClue.visualIdentifiers.map((v, i) => `${i + 1}. ${v}`).join('\n')}
 ` : 'This is the FINALE! They need to race home to find Baby Jesus.'}
 
 HOW TO RESPOND:
@@ -79,7 +82,21 @@ SAMPLE RESPONSES (short, varied, not always names):
 - Random question: "Ha! Good one. [short answer]. Now back to hunting!"
 - Success: "YES! That's it! I knew you could do it!"
 - Teamwork: "Work together - what do you all see?"
-- Fun chat: "Love it! Alright, back to the quest."`;
+- Fun chat: "Love it! Alright, back to the quest."
+
+DESCRIPTION MATCHING (CRITICAL - always include this):
+When they describe what they see, check their description against the VISUAL IDENTIFIERS above.
+Count how many identifiers their description matches (be generous with synonyms: "shades"="sunglasses", "Christmas tree"="light tree", etc.)
+
+At the VERY END of your response, ALWAYS add this exact format on its own line:
+<!--MATCH:N-->
+Where N is the number of identifiers matched (0-6).
+
+Examples:
+- "I see a yellow star with sunglasses behind a bench and a big Christmas tree" → matches 3+ → <!--MATCH:3-->
+- "I see a star" → too vague, matches 0-1 → <!--MATCH:1-->
+- "We're at the coffee shop and can see the ocean deck" → matches 2 → <!--MATCH:2-->
+- Just asking questions or chatting → <!--MATCH:0-->`;
 }
 
 export function getVerificationSystemPrompt(stopNumber: number): string {

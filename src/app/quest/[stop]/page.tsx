@@ -161,6 +161,12 @@ export default function ClueScreen({ params }: PageProps) {
       addMessage('granddaddy', data.response);
       await speakResponse(data.response);
 
+      // Auto-unlock if description matched 2+ visual identifiers
+      if (data.shouldUnlock) {
+        handleSuccess();
+        return;
+      }
+
       if (data.shouldTriggerPhoto) {
         setShowCamera(true);
       }

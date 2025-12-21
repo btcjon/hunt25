@@ -22,6 +22,8 @@ interface ChatOptions {
 interface ChatResponse {
   response: string;
   shouldTriggerPhoto?: boolean;
+  matchCount?: number;
+  shouldUnlock?: boolean;
 }
 
 // Chat with Granddaddy
@@ -57,14 +59,29 @@ export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResp
   });
 
   const textContent = response.content.find((c) => c.type === 'text');
-  const responseText = textContent?.type === 'text' ? textContent.text : "I couldn't quite understand that. Can you try again?";
+  let responseText = textContent?.type === 'text' ? textContent.text : "I couldn't quite understand that. Can you try again?";
+
+  // Parse match count from response (format: <!--MATCH:N-->)
+  let matchCount = 0;
+  const matchRegex = /<!--MATCH:(\d+)-->/;
+  const matchResult = responseText.match(matchRegex);
+  if (matchResult) {
+    matchCount = parseInt(matchResult[1], 10);
+    // Remove the match tag from visible response
+    responseText = responseText.replace(matchRegex, '').trim();
+  }
 
   // Check if response suggests taking a photo
   const shouldTriggerPhoto = /photo|picture|snap|camera|show me|let me see/i.test(message);
 
+  // Unlock if 2+ identifiers matched
+  const shouldUnlock = matchCount >= 2;
+
   return {
     response: responseText,
     shouldTriggerPhoto,
+    matchCount,
+    shouldUnlock,
   };
 }
 
