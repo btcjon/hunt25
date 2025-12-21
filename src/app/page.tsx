@@ -77,6 +77,17 @@ export default function Home() {
             — Matthew 2:2
           </p>
         </div>
+
+        {/* Dev Reset - tap 3 times */}
+        <button
+          onClick={() => {
+            resetGame();
+            alert('Game reset! Tap Begin Journey to start fresh.');
+          }}
+          className="mt-8 text-white/20 text-[10px] tracking-widest hover:text-white/40 transition-colors"
+        >
+          RESET GAME
+        </button>
       </main>
     </div>
   );
