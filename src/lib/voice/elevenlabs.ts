@@ -56,6 +56,12 @@ export async function playAudio(audioData: ArrayBuffer): Promise<void> {
   stopAudio();
 
   currentAudioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+
+  // Mobile browsers require resuming AudioContext after user interaction
+  if (currentAudioContext.state === 'suspended') {
+    await currentAudioContext.resume();
+  }
+
   const audioBuffer = await currentAudioContext.decodeAudioData(audioData);
 
   currentAudioSource = currentAudioContext.createBufferSource();
