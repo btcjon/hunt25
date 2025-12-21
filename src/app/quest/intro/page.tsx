@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { INTRO_DIALOG } from '@/lib/ai/granddaddy';
@@ -14,17 +14,26 @@ export default function IntroPage() {
   const router = useRouter();
   const { teamName, setSpeaking, isSpeaking, audioUnlocked, unlockAudio } = useGameStore();
   const [currentParagraph, setCurrentParagraph] = useState(0);
-  const [showTapPrompt, setShowTapPrompt] = useState(true);
+  const [showTapPrompt, setShowTapPrompt] = useState(!audioUnlocked);
+  const [audioError, setAudioError] = useState(false);
+  const hasStartedRef = useRef(false);
 
   // Split intro into paragraphs for display
   const paragraphs = INTRO_DIALOG.split('\n\n').filter(p => p.trim());
 
-  const speakIntro = useCallback(async () => {
+  const speakIntro = useCallback(async (forceRetry = false) => {
+    if (hasStartedRef.current && !forceRetry) return; // Prevent double-play
+    hasStartedRef.current = true;
+    setAudioError(false);
     setSpeaking(true);
     try {
+      console.log('Starting ElevenLabs TTS...');
       await speak(INTRO_DIALOG);
+      console.log('TTS completed successfully');
     } catch (error) {
       console.error('ElevenLabs failed:', error);
+      setAudioError(true);
+      hasStartedRef.current = false; // Allow retry on error
     } finally {
       setSpeaking(false);
     }
@@ -36,12 +45,13 @@ export default function IntroPage() {
     unlockAudioContext();
     unlockAudio();
     setShowTapPrompt(false);
-    speakIntro();
+    // Small delay to ensure AudioContext is ready
+    setTimeout(() => speakIntro(), 100);
   }, [unlockAudio, speakIntro]);
 
   // If already unlocked (returning to page), auto-play
   useEffect(() => {
-    if (audioUnlocked) {
+    if (audioUnlocked && !hasStartedRef.current) {
       setShowTapPrompt(false);
       const timer = setTimeout(() => speakIntro(), 500);
       return () => clearTimeout(timer);
@@ -145,9 +155,22 @@ export default function IntroPage() {
 
       {/* Buttons */}
       <div className="relative z-10 w-full max-w-md space-y-3 sm:space-y-4 mb-2 sm:mb-4 px-2">
+        {/* Audio Error - Retry Button */}
+        {audioError && (
+          <div className="text-center mb-2">
+            <p className="text-red-400 text-xs mb-2">Audio failed to load</p>
+            <button
+              onClick={() => speakIntro(true)}
+              className="px-4 py-2 bg-red-500/20 border border-red-500/40 text-red-300 rounded-lg text-sm"
+            >
+              Tap to Retry Audio
+            </button>
+          </div>
+        )}
+
         {/* Replay Button */}
         <div className="flex justify-center mb-1 sm:mb-2">
-          <ReplayAudio onReplay={speakIntro} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
+          <ReplayAudio onReplay={() => speakIntro(true)} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
         </div>
 
         <button
