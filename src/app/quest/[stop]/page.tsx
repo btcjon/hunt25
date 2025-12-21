@@ -374,13 +374,13 @@ export default function ClueScreen({ params }: PageProps) {
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="Ask Granddaddy..."
-                disabled={isProcessing || isSpeaking}
-                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-30"
+                disabled={isProcessing}
+                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={!textInput.trim() || isProcessing || isSpeaking}
-                className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-30 active:scale-95 transition-all"
+                disabled={!textInput.trim() || isProcessing}
+                className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-50 active:scale-95 transition-all"
               >
                 ➤
               </button>
@@ -390,7 +390,7 @@ export default function ClueScreen({ params }: PageProps) {
           {/* Found It Button */}
           <button
             onClick={handlePhotoCapture}
-            disabled={isSpeaking || isProcessing}
+            disabled={isProcessing}
             className="premium-button w-full py-4 sm:py-5 px-3 sm:px-4 flex items-center justify-center gap-2 sm:gap-3"
           >
             <span className="text-xl sm:text-2xl">📷</span>
