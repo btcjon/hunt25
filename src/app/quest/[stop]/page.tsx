@@ -538,6 +538,13 @@ function CameraModal({
       return;
     }
 
+    // Check if geolocation is available
+    if (!navigator.geolocation) {
+      setError('GPS not supported on this device');
+      setGpsStatus('error');
+      return;
+    }
+
     setIsCheckingGPS(true);
     setGpsStatus('checking');
     setError('');
@@ -546,7 +553,7 @@ function CameraModal({
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000, // Longer timeout for mobile
           maximumAge: 0,
         });
       });
@@ -570,7 +577,18 @@ function CameraModal({
     } catch (err) {
       console.error('GPS error:', err);
       setGpsStatus('error');
-      setError('Could not get location. Enable GPS and try again.');
+
+      // Provide specific error messages
+      const geoError = err as GeolocationPositionError;
+      if (geoError.code === 1) {
+        setError('Location permission denied. Go to Settings → Safari → Location → Allow');
+      } else if (geoError.code === 2) {
+        setError('Could not determine location. Make sure GPS is enabled.');
+      } else if (geoError.code === 3) {
+        setError('Location request timed out. Try again.');
+      } else {
+        setError('Could not get location. Enable GPS and try again.');
+      }
     } finally {
       setIsCheckingGPS(false);
     }
