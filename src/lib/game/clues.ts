@@ -177,8 +177,8 @@ Red, green, and yellow—where small orbs roll through—
     gps: "33°37'29\"N 78°57'29\"W",
     verse: `"Bethlehem's found—now hear the good word!
 A MESSENGER came with the best news e'er heard.
-Head to the store where the campers all shop,
-Step inside and look UP at the tree's tippy-top!
+A mercantile along the way is a good place to stop,
+Inside look all around from floor to tippy-top!
 Who's got wings spread wide, dressed in robes flowing white?
 She sang 'Do not fear!' on that glorious night!"`,
     scripture: "Luke 2:10",
