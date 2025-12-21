@@ -113,7 +113,7 @@ Like Mary and Joseph on that first holy night!"`,
     name: "THE GIFTS",
     fromLocation: "Twin Chairs (Nature Area / Magnolia Lake)",
     toLocation: "Indoor Christmas Tree (Inside Sandy Harbor Family Fun Center)",
-    gps: "33°37'22\"N 78°57'26\"W",
+    gps: "33.6228584, -78.9575188",
     verse: `"Congratulations, you are on the right path—now treasures await!
 The Wise Men brought GIFTS—and they couldn't be late.
 Head to where families all play,
@@ -143,7 +143,7 @@ Gold, frankincense, myrrh... what a generous show!"`,
     name: "BETHLEHEM",
     fromLocation: "Indoor Christmas Tree (Sandy Harbor Inside)",
     toLocation: "Mini Golf Village (Sandy Harbor Outside)",
-    gps: "33°37'23\"N 78°57'26\"W",
+    gps: "33.6230393, -78.9576150",
     verse: `"The gifts are all gathered—now where do they go?
 To a LITTLE TOWN humble, where carols all flow.
 Nearby is a village so small,
