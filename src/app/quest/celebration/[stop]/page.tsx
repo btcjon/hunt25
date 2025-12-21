@@ -25,7 +25,7 @@ export default function CelebrationPage({ params }: PageProps) {
   const celebrationMessages = [
     "YES! You found THE STAR! Just like the Wise Men, when we look for God's signs, He shows us the way!",
     "AMAZING! THE JOURNEY has begun! The Wise Men traveled far because their faith moved them to ACTION. Keep moving, seekers!",
-    "WOW! MARY AND JOSEPH! They trusted God's plan even when it seemed impossible. That's what faith looks like!",
+    "WOW! You found their RESTING SPOT! Mary and Joseph needed a place to rest on their long journey - just like these two chairs watching over the lake together. Faith means trusting God even when the road is long!",
     "FANTASTIC! THE GIFTS! We give gifts at Christmas because God gave us the GREATEST gift - His Son!",
     "INCREDIBLE! BETHLEHEM! God chose a tiny, humble town. He doesn't need big places to do BIG things!",
     "HOORAY! THE ANGEL! 'Do not be afraid!' The angels brought GOOD NEWS of great joy for ALL people!",

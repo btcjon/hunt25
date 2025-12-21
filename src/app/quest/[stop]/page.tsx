@@ -157,15 +157,19 @@ export default function ClueScreen({ params }: PageProps) {
       });
 
       const data = await res.json();
-      setGranddaddyResponse(data.response);
-      addMessage('granddaddy', data.response);
-      await speakResponse(data.response);
 
       // Auto-unlock if description matched 2+ visual identifiers
+      // Don't speak - celebration page will handle audio
       if (data.shouldUnlock) {
+        setGranddaddyResponse(data.response);
+        addMessage('granddaddy', data.response);
         handleSuccess();
         return;
       }
+
+      setGranddaddyResponse(data.response);
+      addMessage('granddaddy', data.response);
+      await speakResponse(data.response);
 
       if (data.shouldTriggerPhoto) {
         setShowCamera(true);
