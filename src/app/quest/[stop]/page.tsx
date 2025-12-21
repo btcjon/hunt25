@@ -362,7 +362,7 @@ export default function ClueScreen({ params }: PageProps) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (textInput.trim() && !isProcessing && !isSpeaking) {
+                if (textInput.trim() && !isProcessing) {
                   handleUserMessage(textInput.trim());
                   setTextInput('');
                 }

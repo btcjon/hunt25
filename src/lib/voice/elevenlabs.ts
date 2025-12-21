@@ -14,11 +14,12 @@ interface TTSOptions {
 // Global audio controller for stop functionality
 let currentAudioContext: AudioContext | null = null;
 let currentAudioSource: AudioBufferSourceNode | null = null;
+let unlockedAudioContext: AudioContext | null = null; // Persist the unlocked context
 let audioUnlockedByGesture = false;
 
 // Call this immediately on user tap to unlock audio for iOS
 export function unlockAudioContext(): void {
-  if (audioUnlockedByGesture) return;
+  if (audioUnlockedByGesture && unlockedAudioContext) return;
 
   try {
     // Create and immediately resume AudioContext on user gesture
@@ -36,8 +37,10 @@ export function unlockAudioContext(): void {
       ctx.resume();
     }
 
+    // CRITICAL: Store this unlocked context for reuse
+    unlockedAudioContext = ctx;
     audioUnlockedByGesture = true;
-    console.log('Audio unlocked for mobile');
+    console.log('Audio unlocked for mobile, context state:', ctx.state);
   } catch (e) {
     console.error('Failed to unlock audio:', e);
   }
@@ -80,17 +83,34 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
 
 // Play audio from ArrayBuffer with stop support
 export async function playAudio(audioData: ArrayBuffer): Promise<void> {
-  // Stop any currently playing audio
-  stopAudio();
+  // Stop any currently playing audio (but don't close the unlocked context)
+  if (currentAudioSource) {
+    try {
+      currentAudioSource.stop();
+    } catch {
+      // Already stopped
+    }
+    currentAudioSource = null;
+  }
 
-  currentAudioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  // CRITICAL: Reuse the unlocked context if available (iOS requirement)
+  // Creating a new context outside a gesture handler won't work on iOS
+  if (unlockedAudioContext && unlockedAudioContext.state !== 'closed') {
+    currentAudioContext = unlockedAudioContext;
+    console.log('Reusing unlocked AudioContext, state:', currentAudioContext.state);
+  } else {
+    currentAudioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    console.log('Created new AudioContext, state:', currentAudioContext.state);
+  }
 
   // Mobile browsers require resuming AudioContext after user interaction
   if (currentAudioContext.state === 'suspended') {
+    console.log('Resuming suspended AudioContext...');
     await currentAudioContext.resume();
+    console.log('AudioContext resumed, state:', currentAudioContext.state);
   }
 
-  const audioBuffer = await currentAudioContext.decodeAudioData(audioData);
+  const audioBuffer = await currentAudioContext.decodeAudioData(audioData.slice(0));
 
   currentAudioSource = currentAudioContext.createBufferSource();
   currentAudioSource.buffer = audioBuffer;
@@ -111,7 +131,7 @@ export async function playAudio(audioData: ArrayBuffer): Promise<void> {
 
 // Stop currently playing audio
 export function stopAudio(): void {
-  // Stop ElevenLabs audio
+  // Stop ElevenLabs audio source (but preserve the unlocked context for reuse)
   if (currentAudioSource) {
     try {
       currentAudioSource.stop();
@@ -120,7 +140,9 @@ export function stopAudio(): void {
     }
     currentAudioSource = null;
   }
-  if (currentAudioContext) {
+  // DON'T close the AudioContext if it's our unlocked one - we need to reuse it
+  // Only close if it's a different context
+  if (currentAudioContext && currentAudioContext !== unlockedAudioContext) {
     try {
       currentAudioContext.close();
     } catch {
