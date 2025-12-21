@@ -114,7 +114,7 @@ Like Mary and Joseph on that first holy night!"`,
     fromLocation: "Twin Chairs (Nature Area / Magnolia Lake)",
     toLocation: "Indoor Christmas Tree (Inside Sandy Harbor Family Fun Center)",
     gps: "33°37'22\"N 78°57'26\"W",
-    verse: `"You found the sweet couple—now treasures await!
+    verse: `"Congratulations, you are on the right path—now treasures await!
 The Wise Men brought GIFTS—and they couldn't be late.
 Seek where laughter echoes and joy fills the air,
 Step THROUGH the threshold—what you seek waits in there.
