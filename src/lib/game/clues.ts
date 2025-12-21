@@ -268,15 +268,15 @@ export const FINALE = {
   toLocation: "HOME BASE — The Greatest Treasure!",
   verse: `"You followed the STAR when it first caught your eye,
 You made the great JOURNEY beneath the wide sky,
-Found MARY and JOSEPH both patient and true,
-The GIFTS and the LITTLE TOWN waiting for you,
+Followed MARY and JOSEPH, patient and true,
+GIFTS and the LITTLE TOWN waiting for you,
 The ANGEL who sang and the INN with a light,
-The CLOCK ticking perfect through that holy night—
+The CLOCK, God's perfect timing that holy night—
 
 But what was it all for? Why travel so far?
 Why follow the trail of that very first star?
 
-RACE BACK TO HOME BASE—your quest's almost done!
+BACK TO HOME BASE—your quest almost done!
 The answer is waiting: GOD'S ONLY SON!"`,
   scripture: "Luke 2:11",
   scriptureText: "Unto you is born this day in the city of David a Savior, who is Christ the Lord."
