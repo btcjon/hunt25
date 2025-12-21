@@ -177,9 +177,9 @@ Red, green, and yellow—where small orbs roll through—
     gps: "33°37'29\"N 78°57'29\"W",
     verse: `"Bethlehem's found—now hear the good word!
 A MESSENGER came with the best news e'er heard.
-A mercantile along the way is a good place to stop,
-Inside look all around from floor to tippy-top!
-Who's got wings spread wide, dressed in robes flowing white?
+A mercantile along the way is your next stop,
+Inside look around from floor to tippy-top!
+Wings spread wide, in robes flowing white?
 She sang 'Do not fear!' on that glorious night!"`,
     scripture: "Luke 2:10",
     scriptureText: "The angel said, 'Do not be afraid. I bring you good news that will cause great joy!'",
