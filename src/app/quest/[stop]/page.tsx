@@ -22,35 +22,23 @@ export default function ClueScreen({ params }: PageProps) {
     teamName,
     collectedSymbols,
     hintsUsed,
-    recordHint,
     setSpeaking,
     isSpeaking,
     addMessage,
     chatHistory,
     collectSymbol,
     advanceToNextStop,
-    clueStartTimes,
     recordClueStart,
-    audioUnlocked,
   } = useGameStore();
 
-  const [showHint, setShowHint] = useState(false);
   const [granddaddyResponse, setGranddaddyResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-  const [chatTimeRemaining, setChatTimeRemaining] = useState<number | null>(null);
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [overridePassword, setOverridePassword] = useState('');
   const [overrideError, setOverrideError] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [lastUserMessage, setLastUserMessage] = useState('');
-  const [showHintOverrideModal, setShowHintOverrideModal] = useState(false);
-  const [hintPassword, setHintPassword] = useState('');
-  const [hintPasswordError, setHintPasswordError] = useState(false);
-
-  const HINT_UNLOCK_MINUTES = 0; // Disabled for testing
-  const CHAT_UNLOCK_MINUTES = 0; // Disabled - chat available immediately
 
   const clue = CLUES[stopNumber - 1];
 
@@ -67,12 +55,7 @@ export default function ClueScreen({ params }: PageProps) {
     }
   }, [clue, setSpeaking]);
 
-  // Only auto-play clue if audio has been unlocked (user gesture occurred)
-  useEffect(() => {
-    if (!audioUnlocked) return;
-    const timer = setTimeout(() => speakClue(), 500);
-    return () => clearTimeout(timer);
-  }, [speakClue, audioUnlocked]);
+  // No auto-play - user presses button to hear clue
 
   // Record clue start time (only once per stop)
   useEffect(() => {
@@ -80,29 +63,6 @@ export default function ClueScreen({ params }: PageProps) {
     recordClueStart(stopNumber);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stopNumber]);
-
-  // Track countdown timers (hint and chat)
-  useEffect(() => {
-    if (!clue) return;
-
-    // Update timers every second
-    const interval = setInterval(() => {
-      const startTime = clueStartTimes[stopNumber] || Date.now();
-      const elapsed = Date.now() - startTime;
-
-      // Hint timer (15 min)
-      const hintUnlockTime = HINT_UNLOCK_MINUTES * 60 * 1000;
-      const hintRemaining = Math.max(0, hintUnlockTime - elapsed);
-      setTimeRemaining(hintRemaining);
-
-      // Chat timer (5 min)
-      const chatUnlockTime = CHAT_UNLOCK_MINUTES * 60 * 1000;
-      const chatRemaining = Math.max(0, chatUnlockTime - elapsed);
-      setChatTimeRemaining(chatRemaining);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [stopNumber, clue, clueStartTimes, HINT_UNLOCK_MINUTES, CHAT_UNLOCK_MINUTES]);
 
   // Parent override handler
   const handleParentOverride = () => {
@@ -112,18 +72,6 @@ export default function ClueScreen({ params }: PageProps) {
     } else {
       setOverrideError(true);
       setTimeout(() => setOverrideError(false), 2000);
-    }
-  };
-
-  // Parent hint override handler
-  const handleHintOverride = () => {
-    if (hintPassword === '4343') {
-      setShowHint(true);
-      setShowHintOverrideModal(false);
-      setHintPassword('');
-    } else {
-      setHintPasswordError(true);
-      setTimeout(() => setHintPasswordError(false), 2000);
     }
   };
 
@@ -206,11 +154,6 @@ export default function ClueScreen({ params }: PageProps) {
     router.push(`/quest/celebration/${stopNumber}`);
   };
 
-  const handleShowHint = () => {
-    recordHint(stopNumber);
-    setShowHint(true);
-  };
-
   const handlePhotoCapture = () => {
     setShowCamera(true);
   };
@@ -289,36 +232,6 @@ export default function ClueScreen({ params }: PageProps) {
             </p>
           </div>
 
-          {/* Hint Section */}
-          <div className="pt-2">
-            {showHint ? (
-              <div className="glass-indigo rounded-2xl p-5 border border-star-gold/20 animate-in fade-in slide-in-from-top-2">
-                <p className="text-star-gold text-sm font-sans mb-1 uppercase tracking-widest">A Little Light:</p>
-                <p className="text-white/80 text-base italic">
-                  {clue.hint}
-                </p>
-              </div>
-            ) : timeRemaining !== null && timeRemaining > 0 ? (
-              <button
-                onClick={() => setShowHintOverrideModal(true)}
-                className="w-full py-4 text-center border border-white/5 rounded-2xl bg-white/5 hover:bg-white/10 transition-all"
-              >
-                <p className="text-white/30 text-xs font-sans tracking-[0.2em] uppercase mb-1">Hint unlocks in</p>
-                <p className="text-star-gold text-lg font-mono">
-                  {Math.floor(timeRemaining / 60000)}:{String(Math.floor((timeRemaining % 60000) / 1000)).padStart(2, '0')}
-                </p>
-                <p className="text-white/20 text-[10px] mt-1 tracking-widest">TAP FOR PARENT OVERRIDE</p>
-              </button>
-            ) : (
-              <button
-                onClick={handleShowHint}
-                className="w-full py-4 text-xs font-sans tracking-[0.3em] uppercase text-white/30 border border-white/5 rounded-2xl hover:bg-white/5 transition-all"
-              >
-                Seeking a Hint?
-              </button>
-            )}
-          </div>
-
           {/* User Message */}
           {lastUserMessage && (
             <div className="glass-indigo rounded-2xl p-4 border border-blue-500/20 animate-in fade-in">
@@ -352,42 +265,55 @@ export default function ClueScreen({ params }: PageProps) {
       {/* Footer Actions */}
       <footer className="relative z-10 p-3 sm:p-6 pb-6 sm:pb-10 glass-indigo border-t-0 rounded-t-2xl sm:rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
         <div className="max-w-md mx-auto space-y-3">
-          {/* Text Chat Input */}
-          {chatTimeRemaining !== null && chatTimeRemaining > 0 ? (
-            <div className="w-full py-3 text-center border border-white/10 rounded-xl bg-white/5">
-              <p className="text-white/40 text-xs tracking-widest uppercase">
-                Ask Granddaddy in {Math.floor(chatTimeRemaining / 60000)}:{String(Math.floor((chatTimeRemaining % 60000) / 1000)).padStart(2, '0')}
-              </p>
-              <p className="text-white/20 text-[10px] mt-1">Think on your own first!</p>
-            </div>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (textInput.trim() && !isProcessing) {
-                  handleUserMessage(textInput.trim());
-                  setTextInput('');
-                }
-              }}
-              className="flex gap-2"
+          {/* Play/Stop Clue Audio Button */}
+          {!isSpeaking ? (
+            <button
+              onClick={speakClue}
+              className="w-full py-3 flex items-center justify-center gap-2 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl hover:bg-star-gold/30 transition-all"
             >
-              <input
-                type="text"
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Ask Granddaddy..."
-                disabled={isProcessing}
-                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!textInput.trim() || isProcessing}
-                className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-50 active:scale-95 transition-all"
-              >
-                ➤
-              </button>
-            </form>
+              <span className="text-lg">🔊</span>
+              <span className="tracking-widest uppercase text-xs font-bold">Play Clue</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                stopAudio();
+                setSpeaking(false);
+              }}
+              className="w-full py-3 flex items-center justify-center gap-2 bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl hover:bg-red-500/30 transition-all"
+            >
+              <span className="text-lg">⏹️</span>
+              <span className="tracking-widest uppercase text-xs font-bold">Stop Audio</span>
+            </button>
           )}
+
+          {/* Text Chat Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (textInput.trim() && !isProcessing) {
+                handleUserMessage(textInput.trim());
+                setTextInput('');
+              }
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="text"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="Ask Granddaddy..."
+              disabled={isProcessing}
+              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={!textInput.trim() || isProcessing}
+              className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-50 active:scale-95 transition-all"
+            >
+              ➤
+            </button>
+          </form>
 
           {/* Found It Button */}
           <button
@@ -466,48 +392,6 @@ export default function ClueScreen({ params }: PageProps) {
         </div>
       )}
 
-      {/* Hint Override Modal */}
-      {showHintOverrideModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={() => setShowHintOverrideModal(false)}></div>
-          <div className="relative z-10 glass-indigo border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
-            <h3 className="text-white text-lg font-serif text-center mb-4">Unlock Hint Early</h3>
-            <p className="text-white/50 text-xs text-center mb-4">Enter parent code to reveal hint</p>
-            <input
-              type="password"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={4}
-              value={hintPassword}
-              onChange={(e) => setHintPassword(e.target.value)}
-              placeholder="Enter 4-digit code"
-              className={`w-full px-4 py-3 bg-white/10 border ${hintPasswordError ? 'border-red-500' : 'border-white/20'} rounded-xl text-white text-center text-xl tracking-[0.5em] placeholder:text-white/30 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-star-gold/50`}
-              autoFocus
-            />
-            {hintPasswordError && (
-              <p className="text-red-400 text-xs text-center mt-2">Incorrect code</p>
-            )}
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowHintOverrideModal(false);
-                  setHintPassword('');
-                  setHintPasswordError(false);
-                }}
-                className="flex-1 py-3 text-xs tracking-widest uppercase text-white/50 border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleHintOverride}
-                className="flex-1 py-3 text-xs tracking-widest uppercase bg-star-gold text-midnight font-bold rounded-xl hover:bg-star-gold/90 transition-colors"
-              >
-                Show Hint
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

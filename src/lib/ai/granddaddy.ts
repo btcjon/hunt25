@@ -136,14 +136,34 @@ RESPONSE EXAMPLES:
 - Wrong (20%): "That's a nice spot, but I don't think that's quite it. Remember - we're looking for a BIG yellow starfish!"`;
 }
 
-export const INTRO_DIALOG = `Well hello there, Bennett family treasure hunters! It's Granddaddy!
+export const INTRO_DIALOG = `Well hello there, Bennett family treasure hunters! It's your Granddaddy!
 
-I've got a very special adventure planned for you tonight. You see, a long, long time ago, some very wise men saw a STAR appear in the sky. They knew it meant something BIG was coming — so they packed up their camels, grabbed their best gifts, and set off on an incredible JOURNEY.
+Tonight's the night for a special quest,
+A Christmas adventure — the very best!
+Long ago, Wise Men followed a STAR so bright,
+Through desert and darkness, day and night.
 
-Tonight... YOU get to follow in their footsteps!
+Now YOU are the seekers — the team of eight!
+With riddles and clues that just can't wait.
+Eight treasures are hidden all around,
+Each one a piece of the story profound.
 
-I've hidden 8 treasures around this camp — and each one tells part of the Christmas story. Find them all, and you'll discover the GREATEST treasure of all.
+Here's how it works, so listen up tight:
+Read each clue, then search left and right!
+When you think you've found the right spot,
+Use GPS or snap a photo — give it a shot!
 
-Are you ready? Your first clue is waiting!
+If you're confused or need a little light,
+Just tap "Ask Granddaddy" — I'll help you get it right!
+But here's the secret, the key to success:
+Work as a TEAM — no solo, no less!
 
-Oh, and one more thing — if you ever get stuck, just ask me for help. Granddaddy always knows the way... well, unless there's a turn lane involved! Now let's GO!`;
+Listen to each other, share what you see,
+From Mackenzie to Ivy, all must agree!
+The youngest might spot what the oldest missed,
+So keep your eyes open — nothing dismissed!
+
+Now press PLAY when you're ready for your first clue,
+The star is rising — this adventure's for YOU!
+Are you ready, seekers? Let's begin!
+With teamwork and faith, you're sure to win!`;

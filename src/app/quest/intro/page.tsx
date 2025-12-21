@@ -45,18 +45,15 @@ export default function IntroPage() {
     unlockAudioContext();
     unlockAudio();
     setShowTapPrompt(false);
-    // Small delay to ensure AudioContext is ready
-    setTimeout(() => speakIntro(), 100);
-  }, [unlockAudio, speakIntro]);
+    // Don't auto-play - let them press the play button
+  }, [unlockAudio]);
 
-  // If already unlocked (returning to page), auto-play
+  // If already unlocked (returning to page), just hide the prompt
   useEffect(() => {
-    if (audioUnlocked && !hasStartedRef.current) {
+    if (audioUnlocked) {
       setShowTapPrompt(false);
-      const timer = setTimeout(() => speakIntro(), 500);
-      return () => clearTimeout(timer);
     }
-  }, [audioUnlocked, speakIntro]);
+  }, [audioUnlocked]);
 
   // Animate paragraphs appearing
   useEffect(() => {
@@ -168,10 +165,27 @@ export default function IntroPage() {
           </div>
         )}
 
-        {/* Replay Button */}
-        <div className="flex justify-center mb-1 sm:mb-2">
-          <ReplayAudio onReplay={() => speakIntro(true)} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
-        </div>
+        {/* Play/Stop Audio Button - Prominent */}
+        {!hasStartedRef.current || !isSpeaking ? (
+          <button
+            onClick={() => speakIntro(true)}
+            className="w-full py-4 sm:py-5 flex items-center justify-center gap-3 bg-star-gold/20 border-2 border-star-gold/50 text-star-gold rounded-2xl hover:bg-star-gold/30 transition-all"
+          >
+            <span className="text-2xl">🔊</span>
+            <span className="tracking-widest uppercase text-sm font-bold">Play Granddaddy&apos;s Message</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              stopAudio();
+              setSpeaking(false);
+            }}
+            className="w-full py-4 sm:py-5 flex items-center justify-center gap-3 bg-red-500/20 border-2 border-red-500/50 text-red-300 rounded-2xl hover:bg-red-500/30 transition-all"
+          >
+            <span className="text-2xl">⏹️</span>
+            <span className="tracking-widest uppercase text-sm font-bold">Stop Audio</span>
+          </button>
+        )}
 
         <button
           onClick={handleStart}
@@ -179,15 +193,6 @@ export default function IntroPage() {
         >
           We&apos;re Ready!
         </button>
-
-        {isSpeaking && (
-          <button
-            onClick={handleSkip}
-            className="w-full py-3 sm:py-4 text-xs sm:text-sm font-medium text-star-gold/70 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all uppercase tracking-widest"
-          >
-            Skip Intro
-          </button>
-        )}
       </div>
     </div>
   );
