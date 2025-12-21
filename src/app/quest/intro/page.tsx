@@ -12,8 +12,9 @@ import KaraokeText from '@/components/game/KaraokeText';
 
 export default function IntroPage() {
   const router = useRouter();
-  const { teamName, setSpeaking, isSpeaking } = useGameStore();
+  const { teamName, setSpeaking, isSpeaking, audioUnlocked, unlockAudio } = useGameStore();
   const [currentParagraph, setCurrentParagraph] = useState(0);
+  const [showTapPrompt, setShowTapPrompt] = useState(true);
 
   // Split intro into paragraphs for display
   const paragraphs = INTRO_DIALOG.split('\n\n').filter(p => p.trim());
@@ -29,14 +30,21 @@ export default function IntroPage() {
     }
   }, [setSpeaking]);
 
-  useEffect(() => {
-    // Auto-play intro when page loads
-    const timer = setTimeout(() => {
-      speakIntro();
-    }, 500);
+  // Handle initial tap to unlock audio (required for mobile)
+  const handleTapToStart = useCallback(() => {
+    unlockAudio();
+    setShowTapPrompt(false);
+    speakIntro();
+  }, [unlockAudio, speakIntro]);
 
-    return () => clearTimeout(timer);
-  }, [speakIntro]);
+  // If already unlocked (returning to page), auto-play
+  useEffect(() => {
+    if (audioUnlocked) {
+      setShowTapPrompt(false);
+      const timer = setTimeout(() => speakIntro(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [audioUnlocked, speakIntro]);
 
   // Animate paragraphs appearing
   useEffect(() => {
@@ -61,6 +69,29 @@ export default function IntroPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-between px-3 sm:px-4 py-4 sm:py-8 overflow-hidden">
       <Starfield />
+
+      {/* Tap to Start Overlay - Required for mobile audio */}
+      {showTapPrompt && !audioUnlocked && (
+        <div
+          className="fixed inset-0 z-50 bg-midnight/95 flex flex-col items-center justify-center cursor-pointer"
+          onClick={handleTapToStart}
+        >
+          <div className="text-center px-8">
+            <div className="text-6xl sm:text-8xl mb-6 animate-bounce">🔊</div>
+            <h2 className="text-2xl sm:text-3xl font-serif text-white mb-4">
+              Tap to Begin
+            </h2>
+            <p className="text-white/60 text-sm sm:text-base mb-8">
+              Granddaddy is ready to guide you!
+            </p>
+            <div className="inline-block px-8 py-4 bg-star-gold/20 border-2 border-star-gold rounded-full">
+              <span className="text-star-gold font-bold tracking-widest uppercase text-sm">
+                Tap Anywhere
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="relative z-10 text-center mt-2 sm:mt-4">

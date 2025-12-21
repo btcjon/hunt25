@@ -31,6 +31,7 @@ export default function ClueScreen({ params }: PageProps) {
     advanceToNextStop,
     clueStartTimes,
     recordClueStart,
+    audioUnlocked,
   } = useGameStore();
 
   const [showHint, setShowHint] = useState(false);
@@ -66,10 +67,12 @@ export default function ClueScreen({ params }: PageProps) {
     }
   }, [clue, setSpeaking]);
 
+  // Only auto-play clue if audio has been unlocked (user gesture occurred)
   useEffect(() => {
+    if (!audioUnlocked) return;
     const timer = setTimeout(() => speakClue(), 500);
     return () => clearTimeout(timer);
-  }, [speakClue]);
+  }, [speakClue, audioUnlocked]);
 
   // Record clue start time (only once per stop)
   useEffect(() => {
@@ -637,12 +640,12 @@ function CameraModal({
               disabled={isCheckingGPS || gpsStatus === 'success'}
               className={`w-full py-4 rounded-2xl border-2 transition-all ${
                 gpsStatus === 'success'
-                  ? 'bg-green-500/20 border-green-500/50 text-green-400'
+                  ? 'bg-green-500/30 border-green-500/60 text-green-300'
                   : gpsStatus === 'far'
-                  ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
+                  ? 'bg-orange-500/30 border-orange-500/60 text-orange-300'
                   : gpsStatus === 'error'
-                  ? 'bg-red-500/20 border-red-500/50 text-red-400'
-                  : 'bg-star-gold/10 border-star-gold/30 text-star-gold hover:bg-star-gold/20'
+                  ? 'bg-red-500/30 border-red-500/60 text-red-300'
+                  : 'bg-star-gold/20 border-star-gold/50 text-star-gold hover:bg-star-gold/30'
               }`}
             >
               {isCheckingGPS ? (

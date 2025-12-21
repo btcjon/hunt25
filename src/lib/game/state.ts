@@ -37,6 +37,10 @@ export interface GameState {
   addMessage: (role: 'user' | 'granddaddy', content: string) => void;
   clearChatHistory: () => void;
 
+  // Audio unlock for mobile (requires user gesture)
+  audioUnlocked: boolean;
+  unlockAudio: () => void;
+
   // Reset
   resetGame: () => void;
 }
@@ -52,6 +56,7 @@ const initialState = {
   hintsUsed: {},
   clueStartTimes: {},
   chatHistory: [],
+  audioUnlocked: false,
 };
 
 export const useGameStore = create<GameState>()(
@@ -96,6 +101,8 @@ export const useGameStore = create<GameState>()(
       })),
 
       clearChatHistory: () => set({ chatHistory: [] }),
+
+      unlockAudio: () => set({ audioUnlocked: true }),
 
       resetGame: () => set(initialState),
     }),

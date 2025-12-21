@@ -17,7 +17,7 @@ export default function CelebrationPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const stopNumber = parseInt(resolvedParams.stop, 10);
   const router = useRouter();
-  const { collectedSymbols, currentStop, setSpeaking, isSpeaking } = useGameStore();
+  const { collectedSymbols, currentStop, setSpeaking, isSpeaking, audioUnlocked } = useGameStore();
 
   const clue = CLUES[stopNumber - 1];
 
@@ -47,9 +47,11 @@ export default function CelebrationPage({ params }: PageProps) {
     }
   }, [message, clue.name, clue.scriptureText, setSpeaking]);
 
+  // Only auto-play if audio has been unlocked
   useEffect(() => {
+    if (!audioUnlocked) return;
     speakCelebration();
-  }, [speakCelebration]);
+  }, [speakCelebration, audioUnlocked]);
 
   const handleNext = () => {
     if (currentStop > 8) {

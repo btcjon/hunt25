@@ -11,7 +11,7 @@ import ReplayAudio from '@/components/game/ReplayAudio';
 
 export default function FinalePage() {
   const router = useRouter();
-  const { collectedSymbols, teamName, setSpeaking, isSpeaking, resetGame } = useGameStore();
+  const { collectedSymbols, teamName, setSpeaking, isSpeaking, resetGame, audioUnlocked } = useGameStore();
   const [stage, setStage] = useState<'verse' | 'reveal' | 'complete'>('verse');
 
   const speakVerse = useCallback(async () => {
@@ -37,7 +37,10 @@ export default function FinalePage() {
     }
   }, [teamName, setSpeaking]);
 
+  // Only auto-play if audio has been unlocked
   useEffect(() => {
+    if (!audioUnlocked) return;
+
     const runFinale = async () => {
       // Stage 1: Speak the final verse
       await speakVerse();
@@ -54,7 +57,7 @@ export default function FinalePage() {
     };
 
     runFinale();
-  }, [speakVerse, speakRevelation]);
+  }, [speakVerse, speakRevelation, audioUnlocked]);
 
   const handlePlayAgain = () => {
     resetGame();
