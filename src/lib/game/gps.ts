@@ -1,22 +1,33 @@
 // GPS verification utilities
 
-// Parse DMS format (33°37'28"N 78°57'26"W) to decimal degrees
-export function parseDMS(dms: string): { lat: number; lng: number } | null {
-  // Match pattern like: 33°37'28"N 78°57'26"W
-  const regex = /(\d+)°(\d+)'(\d+)"([NS])\s*(\d+)°(\d+)'(\d+)"([EW])/;
-  const match = dms.match(regex);
+// Parse GPS coordinates - supports both formats:
+// - DMS: "33°37'28"N 78°57'26"W"
+// - Decimal: "33.6246728, -78.9573327"
+export function parseGPS(gps: string): { lat: number; lng: number } | null {
+  // Try decimal format first: "33.6246728, -78.9573327"
+  const decimalMatch = gps.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+  if (decimalMatch) {
+    return {
+      lat: parseFloat(decimalMatch[1]),
+      lng: parseFloat(decimalMatch[2]),
+    };
+  }
 
-  if (!match) return null;
+  // Try DMS format: 33°37'28"N 78°57'26"W
+  const dmsRegex = /(\d+)°(\d+)'(\d+)"([NS])\s*(\d+)°(\d+)'(\d+)"([EW])/;
+  const dmsMatch = gps.match(dmsRegex);
 
-  const latDeg = parseInt(match[1]);
-  const latMin = parseInt(match[2]);
-  const latSec = parseInt(match[3]);
-  const latDir = match[4];
+  if (!dmsMatch) return null;
 
-  const lngDeg = parseInt(match[5]);
-  const lngMin = parseInt(match[6]);
-  const lngSec = parseInt(match[7]);
-  const lngDir = match[8];
+  const latDeg = parseInt(dmsMatch[1]);
+  const latMin = parseInt(dmsMatch[2]);
+  const latSec = parseInt(dmsMatch[3]);
+  const latDir = dmsMatch[4];
+
+  const lngDeg = parseInt(dmsMatch[5]);
+  const lngMin = parseInt(dmsMatch[6]);
+  const lngSec = parseInt(dmsMatch[7]);
+  const lngDir = dmsMatch[8];
 
   let lat = latDeg + latMin / 60 + latSec / 3600;
   let lng = lngDeg + lngMin / 60 + lngSec / 3600;
@@ -26,6 +37,9 @@ export function parseDMS(dms: string): { lat: number; lng: number } | null {
 
   return { lat, lng };
 }
+
+// Alias for backwards compatibility
+export const parseDMS = parseGPS;
 
 // Calculate distance between two points using Haversine formula
 // Returns distance in meters
@@ -60,10 +74,10 @@ export const GPS_RADIUS_METERS = 15;
 export function isWithinRadius(
   userLat: number,
   userLng: number,
-  targetDMS: string,
+  targetGPS: string,
   radiusMeters: number = GPS_RADIUS_METERS
 ): { isClose: boolean; distance: number } {
-  const target = parseDMS(targetDMS);
+  const target = parseGPS(targetGPS);
 
   if (!target) {
     return { isClose: false, distance: -1 };

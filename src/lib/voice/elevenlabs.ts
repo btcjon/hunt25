@@ -1,4 +1,4 @@
-// ElevenLabs TTS Client with Stop Support
+// ElevenLabs TTS Client with Robust Mobile Audio Support
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
@@ -11,21 +11,28 @@ interface TTSOptions {
   style?: number;
 }
 
-// Global audio controller for stop functionality
-let currentAudioContext: AudioContext | null = null;
-let currentAudioSource: AudioBufferSourceNode | null = null;
-let unlockedAudioContext: AudioContext | null = null; // Persist the unlocked context
-let audioUnlockedByGesture = false;
+// Global audio state
+let audioContext: AudioContext | null = null;
+let currentSource: AudioBufferSourceNode | null = null;
+let currentHtmlAudio: HTMLAudioElement | null = null;
+let isUnlocked = false;
 
-// Call this immediately on user tap to unlock audio for iOS
+// Get or create AudioContext
+function getAudioContext(): AudioContext {
+  if (!audioContext || audioContext.state === 'closed') {
+    audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  }
+  return audioContext;
+}
+
+// CRITICAL: Call this on first user tap to unlock audio for iOS
 export function unlockAudioContext(): void {
-  if (audioUnlockedByGesture && unlockedAudioContext) return;
+  if (isUnlocked) return;
 
   try {
-    // Create and immediately resume AudioContext on user gesture
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const ctx = getAudioContext();
 
-    // Play a silent buffer to fully unlock
+    // Play silent buffer to unlock
     const buffer = ctx.createBuffer(1, 1, 22050);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -34,12 +41,17 @@ export function unlockAudioContext(): void {
 
     // Resume if suspended
     if (ctx.state === 'suspended') {
-      ctx.resume();
+      ctx.resume().then(() => {
+        console.log('AudioContext resumed via unlock');
+      });
     }
 
-    // CRITICAL: Store this unlocked context for reuse
-    unlockedAudioContext = ctx;
-    audioUnlockedByGesture = true;
+    // Also create a silent HTML5 audio to unlock that path
+    const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+    silentAudio.volume = 0;
+    silentAudio.play().catch(() => {});
+
+    isUnlocked = true;
     console.log('Audio unlocked for mobile, context state:', ctx.state);
   } catch (e) {
     console.error('Failed to unlock audio:', e);
@@ -49,11 +61,11 @@ export function unlockAudioContext(): void {
 export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   const {
     text,
-    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || '245u2NGJdh44gV9eWM9n', // Granddaddy voice
-    modelId = 'eleven_turbo_v2_5', // ~75ms latency, 50% cheaper
-    stability = 0.4, // Lower for expressive adventure narration
-    similarityBoost = 0.85, // High for custom clone fidelity
-    style = 0.7, // Style exaggeration for theatrical delivery
+    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || '245u2NGJdh44gV9eWM9n',
+    modelId = 'eleven_turbo_v2_5',
+    stability = 0.4,
+    similarityBoost = 0.85,
+    style = 0.7,
   } = options;
 
   const response = await fetch(`${ELEVENLABS_API_URL}/text-to-speech/${voiceId}/stream`, {
@@ -81,76 +93,103 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// Play audio from ArrayBuffer with stop support
+// Play audio with WebAudio (primary) or HTML5 Audio (fallback)
 export async function playAudio(audioData: ArrayBuffer): Promise<void> {
-  // Stop any currently playing audio (but don't close the unlocked context)
-  if (currentAudioSource) {
-    try {
-      currentAudioSource.stop();
-    } catch {
-      // Already stopped
+  // Stop any currently playing audio
+  stopAudio();
+
+  // Try WebAudio API first
+  try {
+    const ctx = getAudioContext();
+
+    // Resume if suspended
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
     }
-    currentAudioSource = null;
+
+    // Decode audio data (need to clone buffer as it gets detached)
+    const audioBuffer = await ctx.decodeAudioData(audioData.slice(0));
+
+    currentSource = ctx.createBufferSource();
+    currentSource.buffer = audioBuffer;
+    currentSource.connect(ctx.destination);
+
+    return new Promise((resolve) => {
+      if (currentSource) {
+        currentSource.onended = () => {
+          currentSource = null;
+          resolve();
+        };
+        currentSource.start(0);
+        console.log('Playing via WebAudio API');
+      } else {
+        resolve();
+      }
+    });
+  } catch (webAudioError) {
+    console.warn('WebAudio failed, trying HTML5 Audio fallback:', webAudioError);
+
+    // Fallback to HTML5 Audio
+    return playWithHtmlAudio(audioData);
   }
+}
 
-  // CRITICAL: Reuse the unlocked context if available (iOS requirement)
-  // Creating a new context outside a gesture handler won't work on iOS
-  if (unlockedAudioContext && unlockedAudioContext.state !== 'closed') {
-    currentAudioContext = unlockedAudioContext;
-    console.log('Reusing unlocked AudioContext, state:', currentAudioContext.state);
-  } else {
-    currentAudioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    console.log('Created new AudioContext, state:', currentAudioContext.state);
-  }
+// HTML5 Audio fallback for problematic browsers
+async function playWithHtmlAudio(audioData: ArrayBuffer): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      // Convert ArrayBuffer to Blob URL
+      const blob = new Blob([audioData], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
 
-  // Mobile browsers require resuming AudioContext after user interaction
-  if (currentAudioContext.state === 'suspended') {
-    console.log('Resuming suspended AudioContext...');
-    await currentAudioContext.resume();
-    console.log('AudioContext resumed, state:', currentAudioContext.state);
-  }
+      currentHtmlAudio = new Audio(url);
+      currentHtmlAudio.volume = 1.0;
 
-  const audioBuffer = await currentAudioContext.decodeAudioData(audioData.slice(0));
-
-  currentAudioSource = currentAudioContext.createBufferSource();
-  currentAudioSource.buffer = audioBuffer;
-  currentAudioSource.connect(currentAudioContext.destination);
-
-  return new Promise((resolve) => {
-    if (currentAudioSource) {
-      currentAudioSource.onended = () => {
-        currentAudioSource = null;
+      currentHtmlAudio.onended = () => {
+        URL.revokeObjectURL(url);
+        currentHtmlAudio = null;
         resolve();
       };
-      currentAudioSource.start(0);
-    } else {
-      resolve();
+
+      currentHtmlAudio.onerror = (e) => {
+        URL.revokeObjectURL(url);
+        currentHtmlAudio = null;
+        reject(e);
+      };
+
+      currentHtmlAudio.play()
+        .then(() => console.log('Playing via HTML5 Audio'))
+        .catch(reject);
+    } catch (e) {
+      reject(e);
     }
   });
 }
 
 // Stop currently playing audio
 export function stopAudio(): void {
-  // Stop ElevenLabs audio source (but preserve the unlocked context for reuse)
-  if (currentAudioSource) {
+  // Stop WebAudio source
+  if (currentSource) {
     try {
-      currentAudioSource.stop();
+      currentSource.stop();
     } catch {
       // Already stopped
     }
-    currentAudioSource = null;
+    currentSource = null;
   }
-  // DON'T close the AudioContext if it's our unlocked one - we need to reuse it
-  // Only close if it's a different context
-  if (currentAudioContext && currentAudioContext !== unlockedAudioContext) {
+
+  // Stop HTML5 audio
+  if (currentHtmlAudio) {
     try {
-      currentAudioContext.close();
+      currentHtmlAudio.pause();
+      currentHtmlAudio.currentTime = 0;
     } catch {
-      // Already closed
+      // Already stopped
     }
-    currentAudioContext = null;
+    currentHtmlAudio = null;
   }
-  // Also cancel any browser speech
+
+  // Cancel browser speech synthesis
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
@@ -158,17 +197,23 @@ export function stopAudio(): void {
 
 // Check if audio is currently playing
 export function isAudioPlaying(): boolean {
-  return currentAudioSource !== null;
+  return currentSource !== null || (currentHtmlAudio !== null && !currentHtmlAudio.paused);
 }
 
-// Combined speak function
+// Combined speak function with retry
 export async function speak(text: string, voiceId?: string): Promise<void> {
-  // Cancel any browser speech before ElevenLabs plays
+  // Cancel any browser speech
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
-  const audioData = await textToSpeech({ text, voiceId });
-  await playAudio(audioData);
+
+  try {
+    const audioData = await textToSpeech({ text, voiceId });
+    await playAudio(audioData);
+  } catch (error) {
+    console.error('ElevenLabs speak failed:', error);
+    throw error;
+  }
 }
 
 // Streaming version for lower latency
@@ -178,9 +223,11 @@ export async function speakStreaming(
   onEnd?: () => void,
   voiceId?: string
 ): Promise<void> {
-  const audioData = await textToSpeech({ text, voiceId });
-
-  onStart?.();
-  await playAudio(audioData);
-  onEnd?.();
+  try {
+    const audioData = await textToSpeech({ text, voiceId });
+    onStart?.();
+    await playAudio(audioData);
+  } finally {
+    onEnd?.();
+  }
 }

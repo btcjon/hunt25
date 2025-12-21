@@ -22,7 +22,7 @@ export const CLUES: Clue[] = [
     name: "THE STAR",
     fromLocation: "Home Base",
     toLocation: "Giant Light Tree + Yellow Statue (Camptown Center)",
-    gps: "33°37'28\"N 78°57'26\"W",
+    gps: "33.6246728, -78.9573327",
     verse: `"Wise Men looked up and they knew where to go—
 A STAR in the sky put on quite a show!
 Find the tallest bright tower of lights in this place,
