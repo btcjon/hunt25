@@ -174,7 +174,7 @@ Red, green, and yellow—where small orbs roll through—
     name: "THE ANGEL",
     fromLocation: "Mini Golf Village (Sandy Harbor)",
     toLocation: "Angel Tree Topper (Inside Sandy Mart)",
-    gps: "33°37'29\"N 78°57'29\"W",
+    gps: "33.6248241, -78.9581696",
     verse: `"Bethlehem's found—now hear the good word!
 A MESSENGER came with the best news e'er heard.
 A mercantile along the way is your next stop,
