@@ -204,7 +204,7 @@ She sang 'Do not fear!' on that glorious night!"`,
     name: "THE INN",
     fromLocation: "Sandy Mart (Inside, at the Angel Tree)",
     toLocation: "Fireplace Pavilion (Near Front Entrance)",
-    gps: "33°37'41\"N 78°57'41\"W",
+    gps: "33.6281675, -78.9615545",
     verse: `"The angel announced it—now where will they stay?
 Most inns were too full and just turned them away.
 Go back to the place where you first said 'We're here!'
