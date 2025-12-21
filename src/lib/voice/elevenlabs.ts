@@ -17,7 +17,7 @@ let currentAudioSource: AudioBufferSourceNode | null = null;
 export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   const {
     text,
-    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'oDTvsWCAHEDOJ8Kv9Y6Y', // Granddaddy voice
+    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'JoYo65swyP8hH6fVMeTO', // Granddaddy voice
     modelId = 'eleven_turbo_v2_5',
     stability = 0.5,
     similarityBoost = 0.75,

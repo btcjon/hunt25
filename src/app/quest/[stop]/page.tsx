@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
-import { CLUES, BACKUP_KEYWORDS } from '@/lib/game/clues';
+import { CLUES } from '@/lib/game/clues';
 import { speak } from '@/lib/voice/elevenlabs';
 // Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
@@ -129,17 +129,6 @@ export default function ClueScreen({ params }: PageProps) {
     setIsProcessing(true);
     setLastUserMessage(message);
     addMessage('user', message);
-
-    // Check for backup keyword
-    const keyword = BACKUP_KEYWORDS[stopNumber];
-    if (keyword && message.toUpperCase().includes(keyword)) {
-      const response = "Ah, I see a wise helper gave you the secret! Onward we go!";
-      setGranddaddyResponse(response);
-      addMessage('granddaddy', response);
-      await speakResponse(response);
-      handleSuccess();
-      return;
-    }
 
     // Check if they're saying they found it
     if (/found it|we're here|i'm here|we found|i found|here it is/i.test(message)) {

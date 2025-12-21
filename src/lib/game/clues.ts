@@ -27,7 +27,7 @@ export const CLUES: Clue[] = [
 A STAR in the sky put on quite a show!
 Find the tallest bright tower of lights in this place,
 With a five-pointed friend wearing shades on her face.
-She's yellow and big, sitting right on a bench—
+She's yellow and big, standing behind a bench—
 The star led the Wise Men… now follow the glint!"`,
     scripture: "Matthew 2:2",
     scriptureText: "We saw His star when it rose and have come to worship Him.",
@@ -55,10 +55,10 @@ The star led the Wise Men… now follow the glint!"`,
     gps: "33°37'19\"N 78°57'22\"W",
     verse: `"The star's shining bright—now your JOURNEY begins!
 The Wise Men set off through the thick and the thins.
-Where SANDY holds warmth in a cup, look up high—
-A place to stand watch where the seabirds fly by.
-They traveled through deserts with faith as their guide—
-Seek where the horizon stretches far and wide!"`,
+Find the lookout that watches where water meets land,
+Near a shop selling coffee and cold treats so grand.
+They traveled by night with their eyes on the sky—
+Climb up to the deck and see waves rolling by!"`,
     scripture: "Matthew 2:1",
     scriptureText: "Magi from the east came to Jerusalem.",
     hint: "Where can you get a treat AND see forever? Think high places where waves meet sand.",
