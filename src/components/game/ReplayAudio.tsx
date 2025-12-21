@@ -1,6 +1,6 @@
 'use client';
 
-import { stopAudio } from '@/lib/voice/elevenlabs';
+import { stopAudio, unlockAudioContext } from '@/lib/voice/elevenlabs';
 
 interface ReplayAudioProps {
   onReplay: () => void;
@@ -11,6 +11,9 @@ interface ReplayAudioProps {
 
 export default function ReplayAudio({ onReplay, isPlaying = false, onStop, className = '' }: ReplayAudioProps) {
   const handleClick = () => {
+    // Always try to unlock audio on any tap (iOS requirement)
+    unlockAudioContext();
+
     if (isPlaying) {
       // Stop the audio
       stopAudio();

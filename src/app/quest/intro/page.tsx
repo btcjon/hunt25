@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { INTRO_DIALOG } from '@/lib/ai/granddaddy';
-import { speak } from '@/lib/voice/elevenlabs';
+import { speak, unlockAudioContext } from '@/lib/voice/elevenlabs';
 // Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
 import ReplayAudio from '@/components/game/ReplayAudio';
@@ -32,6 +32,8 @@ export default function IntroPage() {
 
   // Handle initial tap to unlock audio (required for mobile)
   const handleTapToStart = useCallback(() => {
+    // CRITICAL: Unlock AudioContext immediately in gesture handler (iOS requirement)
+    unlockAudioContext();
     unlockAudio();
     setShowTapPrompt(false);
     speakIntro();

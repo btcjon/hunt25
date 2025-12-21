@@ -14,6 +14,34 @@ interface TTSOptions {
 // Global audio controller for stop functionality
 let currentAudioContext: AudioContext | null = null;
 let currentAudioSource: AudioBufferSourceNode | null = null;
+let audioUnlockedByGesture = false;
+
+// Call this immediately on user tap to unlock audio for iOS
+export function unlockAudioContext(): void {
+  if (audioUnlockedByGesture) return;
+
+  try {
+    // Create and immediately resume AudioContext on user gesture
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+
+    // Play a silent buffer to fully unlock
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+
+    // Resume if suspended
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    audioUnlockedByGesture = true;
+    console.log('Audio unlocked for mobile');
+  } catch (e) {
+    console.error('Failed to unlock audio:', e);
+  }
+}
 
 export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   const {
