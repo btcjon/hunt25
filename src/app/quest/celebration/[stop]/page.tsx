@@ -22,17 +22,17 @@ export default function CelebrationPage({ params }: PageProps) {
 
   // Celebration message
   const celebrationMessages = [
-    "YES! You found it! The Wise Men would be SO proud of you!",
-    "AMAZING! You're doing incredible! Granddaddy is cheering!",
-    "WOW! You found it! The Christmas story continues!",
-    "FANTASTIC! Another treasure collected! Keep going!",
-    "INCREDIBLE! You're star seekers for real!",
-    "HOORAY! The journey continues! You're almost there!",
-    "WONDERFUL! You found it! What amazing treasure hunters!",
-    "PERFECT! The clock is ticking and you're right on time!",
+    "YES! We found it! The Wise Men would be SO proud of our family!",
+    "AMAZING! We're doing incredible! Granddaddy is cheering for everyone!",
+    "WOW! We found it together! The Christmas story continues!",
+    "FANTASTIC! Another treasure collected! Everyone say hooray!",
+    "INCREDIBLE! We're all star seekers for real!",
+    "HOORAY! The journey continues! We're almost there together!",
+    "WONDERFUL! We found it as a group! What amazing seekers!",
+    "PERFECT! Everyone together, and right on time!",
   ];
 
-  const message = celebrationMessages[stopNumber - 1] || "You found it!";
+  const message = celebrationMessages[stopNumber - 1] || "We found it!";
 
   useEffect(() => {
     const speakCelebration = async () => {
@@ -65,46 +65,51 @@ export default function CelebrationPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#10B981] flex flex-col items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-sacred-gold via-amber-500 to-candlelight flex flex-col items-center justify-center px-4 relative overflow-hidden">
       {/* Confetti */}
       {showConfetti && <Confetti />}
 
-      <main className="text-center z-10">
+      <main className="text-center z-10 max-w-lg">
         {/* Big Symbol */}
-        <div className="text-8xl mb-4 animate-bounce">
+        <div className="text-9xl mb-6 animate-bounce drop-shadow-2xl">
           {clue.symbol}
         </div>
 
         {/* Success Message */}
-        <h1 className="text-3xl font-bold text-white mb-2">
-          YOU FOUND IT!
+        <h1 className="text-4xl font-bold text-white mb-3 font-crimson drop-shadow-lg">
+          WE FOUND IT!
         </h1>
-        <p className="text-xl text-white/90 mb-6">
+        <p className="text-2xl text-white/95 mb-8 font-lora">
           {clue.name} Collected!
         </p>
 
         {/* Scripture */}
-        <div className="bg-white/20 rounded-xl p-4 mb-6 max-w-sm mx-auto">
-          <p className="text-white italic">
+        <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 mb-8 max-w-md mx-auto border-2 border-white/50 shadow-xl">
+          <p className="text-lg text-white italic font-lora leading-relaxed">
             &ldquo;{clue.scriptureText}&rdquo;
           </p>
-          <p className="text-white/80 text-sm mt-2">
+          <p className="text-white/90 text-base mt-3 font-semibold">
             — {clue.scripture}
           </p>
         </div>
 
         {/* Collected Symbols */}
-        <div className="text-4xl mb-8">
+        <div className="text-5xl mb-8 drop-shadow-lg">
           {collectedSymbols.join(' ')}
         </div>
 
         {/* Next Button */}
         <button
           onClick={handleNext}
-          className="px-8 py-4 text-xl font-bold text-[#10B981] bg-white rounded-xl shadow-lg hover:bg-[#F8FAFC] transition-all active:scale-95"
+          className="px-10 py-5 text-2xl font-bold text-sacred-gold bg-white rounded-xl shadow-2xl hover:bg-soft-ivory transition-all active:scale-95"
         >
           {currentStop > 8 ? 'FINALE! 🏠' : 'NEXT CLUE →'}
         </button>
+
+        {/* Group Prompt */}
+        <p className="mt-6 text-xl text-white font-lora italic">
+          Everyone say hooray! 🎉
+        </p>
       </main>
     </div>
   );

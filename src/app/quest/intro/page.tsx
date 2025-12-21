@@ -62,25 +62,25 @@ export default function IntroPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FEFCE8] flex flex-col items-center justify-between px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 flex flex-col items-center justify-between px-4 py-8">
       {/* Header */}
       <div className="text-center">
-        <p className="text-lg text-[#64748B]">Welcome, {teamName}!</p>
+        <p className="text-xl text-sacred-blue font-lora">Welcome, {teamName}!</p>
       </div>
 
       {/* Granddaddy Speaking */}
       <main className="flex-1 flex flex-col items-center justify-center w-full max-w-md">
         {/* Avatar */}
-        <div className={`w-32 h-32 bg-[#F59E0B] rounded-full flex items-center justify-center text-6xl shadow-lg mb-6 ${isSpeaking ? 'animate-pulse' : ''}`}>
+        <div className={`w-36 h-36 bg-gradient-to-br from-candlelight to-amber-600 rounded-full flex items-center justify-center text-7xl shadow-xl mb-6 ${isSpeaking ? 'animate-pulse ring-4 ring-sacred-gold/30' : ''}`}>
           👴
         </div>
 
         {/* Speech Bubble */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg w-full max-h-[50vh] overflow-y-auto">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl w-full max-h-[50vh] overflow-y-auto border-2 border-sacred-gold/20">
           {paragraphs.slice(0, currentParagraph + 1).map((paragraph, index) => (
             <p
               key={index}
-              className={`text-lg text-[#1E293B] mb-4 last:mb-0 ${index === currentParagraph ? 'animate-fade-in' : ''}`}
+              className={`text-lg text-sacred-blue mb-4 last:mb-0 leading-relaxed ${index === currentParagraph ? 'animate-fade-in' : ''}`}
             >
               {paragraph}
             </p>
@@ -89,11 +89,11 @@ export default function IntroPage() {
 
         {/* Speaking Indicator */}
         {isSpeaking && (
-          <div className="mt-4 flex items-center gap-2 text-[#2563EB]">
-            <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-bounce" />
-            <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-bounce delay-100" />
-            <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-bounce delay-200" />
-            <span className="ml-2">Granddaddy is speaking...</span>
+          <div className="mt-4 flex items-center gap-2 text-candlelight">
+            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce" />
+            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce delay-100" />
+            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce delay-200" />
+            <span className="ml-2 font-lora">Granddaddy is speaking...</span>
           </div>
         )}
       </main>
@@ -103,14 +103,14 @@ export default function IntroPage() {
         {isReady ? (
           <button
             onClick={handleStart}
-            className="w-full py-4 text-xl font-bold text-white bg-[#10B981] rounded-xl shadow-lg hover:bg-[#059669] transition-all active:scale-95"
+            className="w-full py-5 text-2xl font-bold text-white bg-sacred-blue rounded-xl shadow-lg hover:bg-blue-900 transition-all active:scale-95"
           >
-            LET&apos;S GO! 🎯
+            WE&apos;RE ALL READY! 🎯
           </button>
         ) : (
           <button
             onClick={handleSkip}
-            className="w-full py-3 text-lg font-medium text-[#64748B] bg-white border-2 border-[#E2E8F0] rounded-xl hover:bg-[#F8FAFC] transition-all"
+            className="w-full py-3 text-lg font-medium text-sacred-blue bg-white border-2 border-sacred-gold/30 rounded-xl hover:bg-amber-50 transition-all"
           >
             Skip Intro →
           </button>

@@ -187,9 +187,9 @@ export default function ClueScreen({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FEFCE8] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
       {/* Header - Progress */}
-      <header className="p-4 bg-white shadow-sm">
+      <header className="p-4 bg-midnight/80 backdrop-blur-sm shadow-lg border-b border-sacred-gold/20">
         <div className="flex items-center justify-between max-w-md mx-auto">
           {/* Progress Dots */}
           <div className="flex gap-1">
@@ -198,21 +198,21 @@ export default function ClueScreen({ params }: PageProps) {
                 key={i}
                 className={`w-3 h-3 rounded-full ${
                   i < stopNumber - 1
-                    ? 'bg-[#10B981]'
+                    ? 'bg-sacred-gold'
                     : i === stopNumber - 1
-                    ? 'bg-[#2563EB] animate-pulse'
-                    : 'bg-[#E2E8F0]'
+                    ? 'bg-candlelight animate-pulse'
+                    : 'bg-white/30'
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm font-medium text-[#64748B]">
+          <span className="text-sm font-medium text-soft-ivory font-lora">
             Stop {stopNumber}/8
           </span>
         </div>
         {/* Collected Symbols */}
         {collectedSymbols.length > 0 && (
-          <div className="text-center mt-2 text-2xl">
+          <div className="text-center mt-2 text-3xl">
             {collectedSymbols.join(' ')}
           </div>
         )}
@@ -222,14 +222,14 @@ export default function ClueScreen({ params }: PageProps) {
       <main className="flex-1 p-4 overflow-y-auto">
         <div className="max-w-md mx-auto">
           {/* Granddaddy + Clue */}
-          <div className="bg-white rounded-2xl p-4 shadow-lg mb-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl mb-4 border-2 border-sacred-gold/30">
             <div className="flex items-start gap-3">
-              <div className={`w-12 h-12 bg-[#F59E0B] rounded-full flex items-center justify-center text-2xl flex-shrink-0 ${isSpeaking ? 'animate-pulse' : ''}`}>
+              <div className={`w-14 h-14 bg-gradient-to-br from-candlelight to-amber-600 rounded-full flex items-center justify-center text-3xl flex-shrink-0 ${isSpeaking ? 'animate-pulse ring-4 ring-sacred-gold/50' : ''}`}>
                 👴
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-[#1E293B] mb-1">Granddaddy</p>
-                <p className="text-[#1E293B] whitespace-pre-line text-sm leading-relaxed">
+                <p className="font-semibold text-sacred-blue mb-1 font-lora">Granddaddy</p>
+                <p className="text-sacred-blue whitespace-pre-line text-lg leading-relaxed">
                   {clue.verse}
                 </p>
               </div>
@@ -237,23 +237,26 @@ export default function ClueScreen({ params }: PageProps) {
           </div>
 
           {/* Scripture */}
-          <div className="bg-[#2563EB]/10 rounded-xl p-3 mb-4">
-            <p className="text-sm text-[#2563EB]">
-              📖 <strong>{clue.scripture}</strong> — &ldquo;{clue.scriptureText}&rdquo;
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-4 border-l-4 border-sacred-gold">
+            <p className="text-base text-soft-ivory italic font-lora">
+              📖 <strong>{clue.scripture}</strong>
+            </p>
+            <p className="text-base text-soft-ivory/90 mt-2 italic">
+              &ldquo;{clue.scriptureText}&rdquo;
             </p>
           </div>
 
           {/* Hint */}
           {showHint ? (
-            <div className="bg-[#F59E0B]/10 rounded-xl p-3 mb-4">
-              <p className="text-sm text-[#92400E]">
+            <div className="bg-candlelight/20 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold/30">
+              <p className="text-base text-soft-ivory">
                 💡 <strong>Hint:</strong> {clue.hint}
               </p>
             </div>
           ) : (
             <button
               onClick={handleShowHint}
-              className="w-full py-2 text-sm text-[#64748B] bg-white border border-[#E2E8F0] rounded-xl mb-4 hover:bg-[#F8FAFC]"
+              className="w-full py-3 text-base text-soft-ivory bg-white/10 border border-sacred-gold/30 rounded-xl mb-4 hover:bg-white/20 transition-all"
             >
               💡 Need a hint?
             </button>
@@ -261,8 +264,8 @@ export default function ClueScreen({ params }: PageProps) {
 
           {/* Granddaddy Response */}
           {granddaddyResponse && (
-            <div className="bg-[#10B981]/10 rounded-xl p-3 mb-4">
-              <p className="text-sm text-[#065F46]">
+            <div className="bg-sacred-gold/30 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold">
+              <p className="text-base text-soft-ivory">
                 👴 {granddaddyResponse}
               </p>
             </div>
@@ -270,8 +273,8 @@ export default function ClueScreen({ params }: PageProps) {
 
           {/* Transcript */}
           {(isListening || transcript) && (
-            <div className="bg-white rounded-xl p-3 mb-4 border border-[#E2E8F0]">
-              <p className="text-sm text-[#64748B]">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold/30">
+              <p className="text-base text-sacred-blue">
                 🎤 {transcript || 'Listening...'}
               </p>
             </div>
@@ -280,24 +283,24 @@ export default function ClueScreen({ params }: PageProps) {
       </main>
 
       {/* Footer - Action Buttons */}
-      <footer className="p-4 bg-white border-t border-[#E2E8F0]">
+      <footer className="p-4 bg-midnight/90 backdrop-blur-sm border-t border-sacred-gold/30">
         <div className="max-w-md mx-auto flex gap-4">
           {/* Talk Button */}
           {isListening ? (
             <button
               onClick={handleStopListening}
-              className="flex-1 py-4 text-lg font-bold text-white bg-red-500 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-pulse"
+              className="flex-1 py-5 text-xl font-bold text-white bg-red-500 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-pulse"
             >
-              <span className="text-2xl">🎤</span>
+              <span className="text-3xl">🎤</span>
               STOP
             </button>
           ) : (
             <button
               onClick={handleTalk}
               disabled={isSpeaking || isProcessing}
-              className="flex-1 py-4 text-lg font-bold text-white bg-[#2563EB] rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
+              className="flex-1 py-5 text-xl font-bold text-white bg-sacred-blue rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
             >
-              <span className="text-2xl">🎤</span>
+              <span className="text-3xl">🎤</span>
               TALK
             </button>
           )}
@@ -306,10 +309,10 @@ export default function ClueScreen({ params }: PageProps) {
           <button
             onClick={handlePhotoCapture}
             disabled={isSpeaking || isProcessing}
-            className="flex-1 py-4 text-lg font-bold text-white bg-[#10B981] rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
+            className="flex-1 py-5 text-xl font-bold text-white bg-sacred-gold rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
           >
-            <span className="text-2xl">📷</span>
-            FOUND IT!
+            <span className="text-3xl">📷</span>
+            WE FOUND IT!
           </button>
         </div>
       </footer>

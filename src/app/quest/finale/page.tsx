@@ -27,15 +27,15 @@ export default function FinalePage() {
         setSpeaking(false);
       }
 
-      // Wait a moment then reveal
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Sacred pause moment
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setStage('reveal');
       setShowConfetti(true);
 
       // Speak the revelation
       setSpeaking(true);
       try {
-        const revelation = `${teamName}, you found ALL 8 treasures! And now, the GREATEST treasure of all: Baby Jesus! ${FINALE.scriptureText}`;
+        const revelation = `${teamName}, together you found ALL 8 treasures! And now, the GREATEST treasure of all: Baby Jesus! ${FINALE.scriptureText} Let us take a moment to worship Him.`;
         try {
           await speak(revelation);
         } catch {
@@ -45,7 +45,7 @@ export default function FinalePage() {
         setSpeaking(false);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
       setStage('complete');
     };
 
@@ -58,24 +58,24 @@ export default function FinalePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1E293B] to-[#0F172A] flex flex-col items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-midnight via-blue-950 to-slate-900 flex flex-col items-center justify-center px-4 relative overflow-hidden">
       {/* Stars Background */}
       <StarsBackground />
 
       {/* Confetti */}
       {showConfetti && <GoldenConfetti />}
 
-      <main className="text-center z-10 max-w-md">
+      <main className="text-center z-10 max-w-lg px-4">
         {stage === 'verse' && (
           <div className="animate-fade-in">
             {/* All Symbols */}
-            <div className="text-4xl mb-6">
+            <div className="text-5xl mb-8 drop-shadow-lg">
               {collectedSymbols.join(' ')}
             </div>
 
             {/* Final Verse */}
-            <div className="bg-white/10 rounded-2xl p-6 mb-6">
-              <p className="text-white whitespace-pre-line leading-relaxed">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border-2 border-sacred-gold/30">
+              <p className="text-soft-ivory text-xl whitespace-pre-line leading-relaxed font-lora">
                 {FINALE.verse}
               </p>
             </div>
@@ -84,47 +84,57 @@ export default function FinalePage() {
 
         {(stage === 'reveal' || stage === 'complete') && (
           <div className="animate-fade-in">
-            {/* Big Baby Jesus Symbol */}
-            <div className="text-9xl mb-4 animate-pulse">
-              👶
+            {/* Big Baby Jesus Symbol with Golden Glow */}
+            <div className="relative mb-8">
+              <div className="absolute inset-0 blur-3xl bg-sacred-gold/40 animate-pulse" />
+              <div className="relative text-9xl drop-shadow-2xl">
+                👶
+              </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-[#F59E0B] mb-2">
+            <h1 className="text-5xl font-bold text-sacred-gold mb-3 font-crimson drop-shadow-lg">
               BABY JESUS!
             </h1>
-            <p className="text-xl text-white/90 mb-6">
+            <p className="text-2xl text-soft-ivory mb-8 font-lora italic">
               The Greatest Treasure of All
             </p>
 
             {/* All Symbols */}
-            <div className="text-4xl mb-6">
+            <div className="text-5xl mb-8 drop-shadow-lg">
               {collectedSymbols.join(' ')} 👶
             </div>
 
-            {/* Scripture */}
-            <div className="bg-[#F59E0B]/20 rounded-xl p-4 mb-6">
-              <p className="text-[#F59E0B] italic text-lg">
+            {/* Scripture - Sacred Styling */}
+            <div className="bg-sacred-gold/20 backdrop-blur-sm rounded-xl p-6 mb-8 border-l-4 border-sacred-gold shadow-xl">
+              <p className="text-soft-ivory italic text-xl font-lora leading-relaxed">
                 &ldquo;{FINALE.scriptureText}&rdquo;
               </p>
-              <p className="text-[#F59E0B]/80 text-sm mt-2">
+              <p className="text-sacred-gold text-base mt-3 font-semibold">
                 — {FINALE.scripture}
               </p>
             </div>
 
-            {/* Team Congratulations */}
-            <div className="bg-white/10 rounded-xl p-4 mb-8">
-              <p className="text-white text-lg">
-                🎉 Congratulations, <strong>{teamName}</strong>! 🎉
+            {/* Sacred Pause Message */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-8 border border-soft-ivory/20">
+              <p className="text-soft-ivory text-lg font-lora italic leading-relaxed">
+                Let us take a sacred moment together to worship the newborn King...
               </p>
-              <p className="text-white/80 mt-2">
-                You followed the Star, made the Journey, and found the true meaning of Christmas!
+            </div>
+
+            {/* Team Congratulations */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border-2 border-sacred-gold/30">
+              <p className="text-soft-ivory text-xl font-lora">
+                🎉 Congratulations, <strong className="text-sacred-gold">{teamName}</strong>! 🎉
+              </p>
+              <p className="text-soft-ivory/90 mt-3 text-lg leading-relaxed">
+                Together, you followed the Star, made the Journey, and found the true meaning of Christmas!
               </p>
             </div>
 
             {stage === 'complete' && (
               <button
                 onClick={handlePlayAgain}
-                className="px-8 py-4 text-xl font-bold text-[#1E293B] bg-[#F59E0B] rounded-xl shadow-lg hover:bg-[#D97706] transition-all active:scale-95"
+                className="px-10 py-5 text-2xl font-bold text-white bg-sacred-gold rounded-xl shadow-2xl hover:bg-candlelight transition-all active:scale-95"
               >
                 Play Again ⭐
               </button>
