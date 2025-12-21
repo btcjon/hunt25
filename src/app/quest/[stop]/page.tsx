@@ -7,6 +7,7 @@ import { CLUES, BACKUP_KEYWORDS } from '@/lib/game/clues';
 import { speak } from '@/lib/voice/elevenlabs';
 import { speakFallback } from '@/lib/voice/webSpeech';
 import { startListening, stopListening, isSpeechRecognitionSupported } from '@/lib/voice/webSpeech';
+import Starfield from '@/components/game/Starfield';
 
 interface PageProps {
   params: Promise<{ stop: string }>;
@@ -177,7 +178,6 @@ export default function ClueScreen({ params }: PageProps) {
   };
 
   const handlePhotoCapture = () => {
-    // For now, just navigate to camera - we'll implement full camera later
     setShowCamera(true);
   };
 
@@ -187,121 +187,133 @@ export default function ClueScreen({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
-      {/* Header - Progress */}
-      <header className="p-4 bg-midnight/80 backdrop-blur-sm shadow-lg border-b border-sacred-gold/20">
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          {/* Progress Dots */}
-          <div className="flex gap-1">
+    <div className="relative min-h-screen flex flex-col overflow-hidden">
+      <Starfield />
+      
+      {/* Header - Progress Stars */}
+      <header className="relative z-10 p-6 glass-indigo border-b-0">
+        <div className="max-w-md mx-auto">
+          <div className="flex justify-center gap-3 mb-2">
             {CLUES.map((_, i) => (
               <div
                 key={i}
-                className={`w-3 h-3 rounded-full ${
+                className={`text-xl transition-all duration-500 ${
                   i < stopNumber - 1
-                    ? 'bg-sacred-gold'
+                    ? 'text-star-gold drop-shadow-[0_0_8px_rgba(245,209,126,0.6)]'
                     : i === stopNumber - 1
-                    ? 'bg-candlelight animate-pulse'
-                    : 'bg-white/30'
+                    ? 'text-white animate-pulse'
+                    : 'text-white/20'
                 }`}
-              />
+              >
+                ★
+              </div>
             ))}
           </div>
-          <span className="text-sm font-medium text-soft-ivory font-lora">
-            Stop {stopNumber}/8
-          </span>
-        </div>
-        {/* Collected Symbols */}
-        {collectedSymbols.length > 0 && (
-          <div className="text-center mt-2 text-3xl">
-            {collectedSymbols.join(' ')}
+          <div className="flex items-center justify-between text-[10px] tracking-[0.2em] font-sans uppercase text-white/50">
+            <span>The Bennett Quest</span>
+            <span>Stop {stopNumber} of 8</span>
           </div>
-        )}
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-md mx-auto">
-          {/* Granddaddy + Clue */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl mb-4 border-2 border-sacred-gold/30">
-            <div className="flex items-start gap-3">
-              <div className={`w-14 h-14 bg-gradient-to-br from-candlelight to-amber-600 rounded-full flex items-center justify-center text-3xl flex-shrink-0 ${isSpeaking ? 'animate-pulse ring-4 ring-sacred-gold/50' : ''}`}>
-                👴
+      <main className="relative z-10 flex-1 p-6 overflow-y-auto scrollbar-hide">
+        <div className="max-w-md mx-auto space-y-6">
+          
+          {/* Granddaddy Clue Card */}
+          <div className="glass-indigo rounded-3xl p-6 shadow-glass border-white/5">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <div className={`absolute inset-0 bg-star-gold/20 rounded-full blur-xl ${isSpeaking ? 'animate-pulse scale-110' : ''}`}></div>
+                <div className={`relative z-10 w-full h-full rounded-full border border-star-gold/30 glass flex items-center justify-center text-4xl shadow-xl ${isSpeaking ? 'ring-2 ring-star-gold/30' : ''}`}>
+                  👴
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sacred-blue mb-1 font-lora">Granddaddy</p>
-                <p className="text-sacred-blue whitespace-pre-line text-lg leading-relaxed">
-                  {clue.verse}
-                </p>
+              <div className="pt-2">
+                <p className="text-star-gold text-xs font-sans tracking-widest uppercase mb-1">Granddaddy</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/50 text-xs">Clue is ready</span>
+                  <button onClick={speakClue} className="text-star-gold hover:text-white transition-colors">
+                    <span className="text-lg">🔊</span>
+                  </button>
+                </div>
               </div>
             </div>
+            <p className="text-white text-xl leading-relaxed font-serif italic text-glow">
+              &ldquo;{clue.verse}&rdquo;
+            </p>
           </div>
 
-          {/* Scripture */}
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-4 border-l-4 border-sacred-gold">
-            <p className="text-base text-soft-ivory italic font-lora">
-              📖 <strong>{clue.scripture}</strong>
-            </p>
-            <p className="text-base text-soft-ivory/90 mt-2 italic">
+          {/* Scripture Card */}
+          <div className="glass-indigo rounded-2xl p-6 border-l-2 border-star-gold/40 shadow-xl">
+            <p className="text-star-gold text-xs font-sans tracking-[0.2em] uppercase mb-3">The Word</p>
+            <p className="text-white/90 text-base italic font-scripture leading-relaxed">
               &ldquo;{clue.scriptureText}&rdquo;
             </p>
+            <p className="text-white/40 text-xs mt-4 text-right font-sans tracking-widest uppercase">
+              — {clue.scripture}
+            </p>
           </div>
 
-          {/* Hint */}
-          {showHint ? (
-            <div className="bg-candlelight/20 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold/30">
-              <p className="text-base text-soft-ivory">
-                💡 <strong>Hint:</strong> {clue.hint}
-              </p>
-            </div>
-          ) : (
-            <button
-              onClick={handleShowHint}
-              className="w-full py-3 text-base text-soft-ivory bg-white/10 border border-sacred-gold/30 rounded-xl mb-4 hover:bg-white/20 transition-all"
-            >
-              💡 Need a hint?
-            </button>
-          )}
+          {/* Hint Section */}
+          <div className="pt-2">
+            {showHint ? (
+              <div className="glass-indigo rounded-2xl p-5 border border-star-gold/20 animate-in fade-in slide-in-from-top-2">
+                <p className="text-star-gold text-sm font-sans mb-1 uppercase tracking-widest">A Little Light:</p>
+                <p className="text-white/80 text-base italic">
+                  {clue.hint}
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={handleShowHint}
+                className="w-full py-4 text-xs font-sans tracking-[0.3em] uppercase text-white/30 border border-white/5 rounded-2xl hover:bg-white/5 transition-all"
+              >
+                Seeking a Hint?
+              </button>
+            )}
+          </div>
 
-          {/* Granddaddy Response */}
+          {/* Granddaddy Chat Response */}
           {granddaddyResponse && (
-            <div className="bg-sacred-gold/30 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold">
-              <p className="text-base text-soft-ivory">
+            <div className="glass-indigo rounded-2xl p-5 border border-star-gold/30 animate-in zoom-in-95">
+              <p className="text-white/90 text-base leading-relaxed">
                 👴 {granddaddyResponse}
               </p>
             </div>
           )}
 
-          {/* Transcript */}
+          {/* Transcript / Listening State */}
           {(isListening || transcript) && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 mb-4 border border-sacred-gold/30">
-              <p className="text-base text-sacred-blue">
-                🎤 {transcript || 'Listening...'}
+            <div className="glass-indigo rounded-2xl p-4 border border-blue-500/20">
+              <p className="text-blue-300 text-sm italic">
+                {isListening ? 'Granddaddy is listening...' : `You: "${transcript}"`}
               </p>
             </div>
           )}
         </div>
       </main>
 
-      {/* Footer - Action Buttons */}
-      <footer className="p-4 bg-midnight/90 backdrop-blur-sm border-t border-sacred-gold/30">
-        <div className="max-w-md mx-auto flex gap-4">
+      {/* Footer Actions */}
+      <footer className="relative z-10 p-6 pb-10 glass-indigo border-t-0 rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
           {/* Talk Button */}
           {isListening ? (
             <button
               onClick={handleStopListening}
-              className="flex-1 py-5 text-xl font-bold text-white bg-red-500 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-pulse"
+              className="py-5 px-4 bg-red-900/40 border border-red-500/50 text-white font-bold rounded-2xl shadow-xl flex items-center justify-center gap-3 animate-pulse"
             >
-              <span className="text-3xl">🎤</span>
-              STOP
+              <span className="text-2xl">⏹</span>
+              <span className="tracking-widest uppercase text-sm">Stop</span>
             </button>
           ) : (
             <button
               onClick={handleTalk}
               disabled={isSpeaking || isProcessing}
-              className="flex-1 py-5 text-xl font-bold text-white bg-sacred-blue rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
+              className="py-5 px-4 glass border border-white/20 text-white font-bold rounded-2xl shadow-xl flex items-center justify-center gap-3 disabled:opacity-30 active:scale-95 transition-all"
             >
-              <span className="text-3xl">🎤</span>
-              TALK
+              <span className="text-2xl">🎤</span>
+              <span className="tracking-widest uppercase text-sm">Talk</span>
             </button>
           )}
 
@@ -309,10 +321,10 @@ export default function ClueScreen({ params }: PageProps) {
           <button
             onClick={handlePhotoCapture}
             disabled={isSpeaking || isProcessing}
-            className="flex-1 py-5 text-xl font-bold text-white bg-sacred-gold rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
+            className="premium-button py-5 px-4 flex items-center justify-center gap-3"
           >
-            <span className="text-3xl">📷</span>
-            WE FOUND IT!
+            <span className="text-2xl">📷</span>
+            <span className="tracking-widest uppercase text-sm">Found it!</span>
           </button>
         </div>
       </footer>
@@ -333,7 +345,7 @@ export default function ClueScreen({ params }: PageProps) {
   );
 }
 
-// Simple Camera Modal Component
+// Updated Camera Modal Component
 function CameraModal({
   stopNumber,
   onClose,
@@ -353,7 +365,6 @@ function CameraModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = (reader.result as string).split(',')[1];
@@ -382,11 +393,9 @@ function CameraModal({
       if (data.isCorrect) {
         onSuccess();
       } else if (data.confidence >= 50) {
-        // Partial match - ask follow-up
         onPartial(data.granddaddyResponse + (data.followUpQuestion ? ` ${data.followUpQuestion}` : ''));
         onClose();
       } else {
-        // Wrong location
         onPartial(data.granddaddyResponse);
         onClose();
       }
@@ -399,22 +408,28 @@ function CameraModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md p-4">
-        <h2 className="text-xl font-bold text-center mb-4">📷 Take a Photo!</h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={onClose}></div>
+      <div className="relative z-10 glass-indigo border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-hidden">
+        {/* Decorative corner stars */}
+        <div className="absolute top-2 left-2 text-star-gold/20 text-xs">★</div>
+        <div className="absolute top-2 right-2 text-star-gold/20 text-xs">★</div>
+        
+        <h2 className="text-xl font-serif text-white text-center mb-6 tracking-wide">Prove Your Finding</h2>
 
         {photo ? (
-          <div className="relative">
-            <img src={photo} alt="Captured" className="w-full rounded-xl" />
+          <div className="relative rounded-2xl overflow-hidden border-2 border-star-gold/30">
+            <img src={photo} alt="Captured" className="w-full aspect-[4/3] object-cover" />
             {isVerifying && (
-              <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                <div className="text-white text-lg">Checking... 🔍</div>
+              <div className="absolute inset-0 bg-midnight/60 backdrop-blur-sm flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-4 border-star-gold border-t-transparent rounded-full animate-spin mb-4"></div>
+                <div className="text-star-gold text-xs tracking-widest uppercase font-bold">Verifying...</div>
               </div>
             )}
           </div>
         ) : (
-          <div className="aspect-video bg-[#1E293B] rounded-xl flex items-center justify-center">
-            <label className="cursor-pointer text-center">
+          <div className="aspect-[4/3] glass bg-white/5 rounded-2xl flex items-center justify-center border-2 border-dashed border-white/10">
+            <label className="cursor-pointer text-center group">
               <input
                 type="file"
                 accept="image/*"
@@ -422,21 +437,21 @@ function CameraModal({
                 onChange={handleCapture}
                 className="hidden"
               />
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-2">
-                <span className="text-4xl">📷</span>
+              <div className="w-24 h-24 bg-star-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-star-gold/20 group-hover:scale-110 transition-transform duration-500">
+                <span className="text-5xl">📷</span>
               </div>
-              <p className="text-white">Tap to take photo</p>
+              <p className="text-white/60 text-sm tracking-widest uppercase">Tap to Capture</p>
             </label>
           </div>
         )}
 
         {error && (
-          <p className="text-red-500 text-center mt-2">{error}</p>
+          <p className="text-red-400 text-xs text-center mt-4 uppercase tracking-widest">{error}</p>
         )}
 
         <button
           onClick={onClose}
-          className="w-full mt-4 py-3 text-[#64748B] bg-[#F8FAFC] rounded-xl"
+          className="w-full mt-8 py-4 text-xs tracking-[0.3em] uppercase text-white/40 font-bold hover:text-white transition-colors"
         >
           Cancel
         </button>
@@ -444,3 +459,4 @@ function CameraModal({
     </div>
   );
 }
+

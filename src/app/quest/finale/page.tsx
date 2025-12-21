@@ -1,56 +1,64 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { FINALE } from '@/lib/game/clues';
 import { speak } from '@/lib/voice/elevenlabs';
 import { speakFallback } from '@/lib/voice/webSpeech';
+import Starfield from '@/components/game/Starfield';
+import ReplayAudio from '@/components/game/ReplayAudio';
 
 export default function FinalePage() {
   const router = useRouter();
-  const { collectedSymbols, teamName, setSpeaking, resetGame } = useGameStore();
+  const { collectedSymbols, teamName, setSpeaking, isSpeaking, resetGame } = useGameStore();
   const [stage, setStage] = useState<'verse' | 'reveal' | 'complete'>('verse');
-  const [showConfetti, setShowConfetti] = useState(false);
+
+  const speakVerse = useCallback(async () => {
+    setSpeaking(true);
+    try {
+      try {
+        await speak(FINALE.verse);
+      } catch {
+        await speakFallback(FINALE.verse);
+      }
+    } finally {
+      setSpeaking(false);
+    }
+  }, [setSpeaking]);
+
+  const speakRevelation = useCallback(async () => {
+    setSpeaking(true);
+    try {
+      const revelation = `${teamName}, together you found ALL 8 treasures! And now, the GREATEST treasure of all: Baby Jesus! ${FINALE.scriptureText} Let us take a moment to worship Him.`;
+      try {
+        await speak(revelation);
+      } catch {
+        await speakFallback(revelation);
+      }
+    } finally {
+      setSpeaking(false);
+    }
+  }, [teamName, setSpeaking]);
 
   useEffect(() => {
     const runFinale = async () => {
       // Stage 1: Speak the final verse
-      setSpeaking(true);
-      try {
-        try {
-          await speak(FINALE.verse);
-        } catch {
-          await speakFallback(FINALE.verse);
-        }
-      } finally {
-        setSpeaking(false);
-      }
+      await speakVerse();
 
       // Sacred pause moment
       await new Promise(resolve => setTimeout(resolve, 2000));
       setStage('reveal');
-      setShowConfetti(true);
 
       // Speak the revelation
-      setSpeaking(true);
-      try {
-        const revelation = `${teamName}, together you found ALL 8 treasures! And now, the GREATEST treasure of all: Baby Jesus! ${FINALE.scriptureText} Let us take a moment to worship Him.`;
-        try {
-          await speak(revelation);
-        } catch {
-          await speakFallback(revelation);
-        }
-      } finally {
-        setSpeaking(false);
-      }
+      await speakRevelation();
 
       await new Promise(resolve => setTimeout(resolve, 3000));
       setStage('complete');
     };
 
     runFinale();
-  }, [teamName, setSpeaking]);
+  }, [speakVerse, speakRevelation]);
 
   const handlePlayAgain = () => {
     resetGame();
@@ -58,189 +66,116 @@ export default function FinalePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-midnight via-blue-950 to-slate-900 flex flex-col items-center justify-center px-4 relative overflow-hidden">
-      {/* Stars Background */}
-      <StarsBackground />
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden bg-midnight">
+      <Starfield />
+      
+      {stage !== 'verse' && <FinaleGlow />}
 
-      {/* Confetti */}
-      {showConfetti && <GoldenConfetti />}
-
-      <main className="text-center z-10 max-w-lg px-4">
+      <main className="relative z-10 text-center max-w-lg w-full px-4">
         {stage === 'verse' && (
-          <div className="animate-fade-in">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
             {/* All Symbols */}
-            <div className="text-5xl mb-8 drop-shadow-lg">
-              {collectedSymbols.join(' ')}
+            <div className="flex flex-wrap justify-center gap-4 mb-10 opacity-60">
+              {collectedSymbols.map((sym, i) => (
+                <span key={i} className="text-4xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{sym}</span>
+              ))}
             </div>
 
-            {/* Final Verse */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border-2 border-sacred-gold/30">
-              <p className="text-soft-ivory text-xl whitespace-pre-line leading-relaxed font-lora">
+            {/* Final Clue Card */}
+            <div className="glass-indigo rounded-3xl p-10 border-white/5 shadow-glass">
+              <p className="text-white text-2xl whitespace-pre-line leading-relaxed font-serif italic text-glow">
                 {FINALE.verse}
               </p>
             </div>
+            
+            {/* Replay Button */}
+            <div className="flex justify-center mt-8 mb-4">
+              <ReplayAudio onReplay={speakVerse} isPlaying={isSpeaking} />
+            </div>
+
+            <p className="mt-4 text-star-gold text-xs tracking-[0.4em] uppercase font-sans animate-pulse">
+              Follow the light...
+            </p>
           </div>
         )}
 
         {(stage === 'reveal' || stage === 'complete') && (
-          <div className="animate-fade-in">
-            {/* Big Baby Jesus Symbol with Golden Glow */}
-            <div className="relative mb-8">
-              <div className="absolute inset-0 blur-3xl bg-sacred-gold/40 animate-pulse" />
-              <div className="relative text-9xl drop-shadow-2xl">
+          <div className="animate-in fade-in zoom-in duration-1000">
+            {/* Big Baby Jesus Symbol with Intense Golden Glow */}
+            <div className="relative mb-12 group">
+              <div className="absolute inset-0 bg-star-gold/30 rounded-full blur-3xl scale-150 animate-pulse"></div>
+              <div className="relative z-10 text-[140px] drop-shadow-[0_0_50px_rgba(245,209,126,1)] animate-bounce duration-2000">
                 👶
               </div>
             </div>
 
-            <h1 className="text-5xl font-bold text-sacred-gold mb-3 font-crimson drop-shadow-lg">
-              BABY JESUS!
-            </h1>
-            <p className="text-2xl text-soft-ivory mb-8 font-lora italic">
-              The Greatest Treasure of All
-            </p>
-
-            {/* All Symbols */}
-            <div className="text-5xl mb-8 drop-shadow-lg">
-              {collectedSymbols.join(' ')} 👶
+            <div className="mb-10">
+              <h1 className="text-star-gold text-sm tracking-[0.5em] uppercase font-sans mb-3 drop-shadow-sm">
+                The True Light
+              </h1>
+              <h2 className="text-6xl font-serif text-white text-glow mb-4">
+                BABY JESUS
+              </h2>
+              <p className="text-white/60 text-lg font-serif italic">
+                The Greatest Treasure of All
+              </p>
             </div>
 
-            {/* Scripture - Sacred Styling */}
-            <div className="bg-sacred-gold/20 backdrop-blur-sm rounded-xl p-6 mb-8 border-l-4 border-sacred-gold shadow-xl">
-              <p className="text-soft-ivory italic text-xl font-lora leading-relaxed">
+            {/* Symbols Bar */}
+            <div className="flex justify-center items-center gap-3 mb-10 bg-white/5 backdrop-blur-md rounded-full px-6 py-3 border border-white/10 w-fit mx-auto">
+              {collectedSymbols.map((sym, i) => (
+                <span key={i} className="text-2xl opacity-60">{sym}</span>
+              ))}
+              <span className="text-3xl text-star-gold ml-2 animate-pulse">👶</span>
+            </div>
+
+            {/* Scripture - Sacred Card */}
+            <div className="glass-indigo rounded-3xl p-10 mb-10 border-star-gold/30 shadow-[0_0_40px_rgba(245,209,126,0.15)]">
+              <p className="text-2xl text-white italic font-scripture leading-relaxed">
                 &ldquo;{FINALE.scriptureText}&rdquo;
               </p>
-              <p className="text-sacred-gold text-base mt-3 font-semibold">
+              <div className="h-px w-16 bg-star-gold/40 mx-auto my-8"></div>
+              <p className="text-star-gold text-sm tracking-widest uppercase font-sans">
                 — {FINALE.scripture}
               </p>
             </div>
 
-            {/* Sacred Pause Message */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 mb-8 border border-soft-ivory/20">
-              <p className="text-soft-ivory text-lg font-lora italic leading-relaxed">
-                Let us take a sacred moment together to worship the newborn King...
-              </p>
+            {/* Replay Button */}
+            <div className="flex justify-center mb-8">
+              <ReplayAudio onReplay={speakRevelation} isPlaying={isSpeaking} />
             </div>
 
-            {/* Team Congratulations */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border-2 border-sacred-gold/30">
-              <p className="text-soft-ivory text-xl font-lora">
-                🎉 Congratulations, <strong className="text-sacred-gold">{teamName}</strong>! 🎉
+            {/* Team Victory Message */}
+            <div className="mb-12">
+              <p className="text-white/80 text-xl font-serif mb-2">
+                Congratulations, <span className="text-star-gold font-bold">{teamName}</span>
               </p>
-              <p className="text-soft-ivory/90 mt-3 text-lg leading-relaxed">
-                Together, you followed the Star, made the Journey, and found the true meaning of Christmas!
+              <p className="text-white/40 text-sm font-sans tracking-widest uppercase">
+                Quest Completed • Christmas 2025
               </p>
             </div>
 
             {stage === 'complete' && (
               <button
                 onClick={handlePlayAgain}
-                className="px-10 py-5 text-2xl font-bold text-white bg-sacred-gold rounded-xl shadow-2xl hover:bg-candlelight transition-all active:scale-95"
+                className="premium-button w-full max-w-xs py-6 text-xl tracking-widest uppercase animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500"
               >
-                Play Again ⭐
+                Rejoice & Play Again
               </button>
             )}
           </div>
         )}
       </main>
-
-      <style jsx>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
-        }
-        .animate-twinkle {
-          animation: twinkle 2s ease-in-out infinite;
-        }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
 
-// Stars Background - generated once on mount
-function StarsBackground() {
-  const [stars] = useState(() =>
-    Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      delay: Math.random() * 2,
-    }))
-  );
-
+function FinaleGlow() {
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
-          style={{
-            left: `${star.left}%`,
-            top: `${star.top}%`,
-            animationDelay: `${star.delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Golden Confetti for Finale - generated once on mount
-function GoldenConfetti() {
-  const colors = ['#F59E0B', '#FCD34D', '#FBBF24', '#D97706'];
-
-  const [confettiPieces] = useState(() =>
-    Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      animationDuration: 3 + Math.random() * 3,
-      animationDelay: Math.random() * 1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: 10 + Math.random() * 15,
-      isCircle: Math.random() > 0.5,
-    }))
-  );
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {confettiPieces.map((piece) => (
-        <div
-          key={piece.id}
-          className="absolute animate-confetti-gold"
-          style={{
-            left: `${piece.left}%`,
-            top: '-20px',
-            width: piece.size,
-            height: piece.size,
-            backgroundColor: piece.color,
-            animationDuration: `${piece.animationDuration}s`,
-            animationDelay: `${piece.animationDelay}s`,
-            borderRadius: piece.isCircle ? '50%' : '0',
-            boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
-          }}
-        />
-      ))}
-      <style jsx>{`
-        @keyframes confetti-gold {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(1080deg);
-            opacity: 0;
-          }
-        }
-        .animate-confetti-gold {
-          animation: confetti-gold linear forwards;
-        }
-      `}</style>
+    <div className="fixed inset-0 pointer-events-none">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[50vh] bg-gradient-to-t from-star-gold/20 to-transparent blur-3xl opacity-60"></div>
+      {/* Falling star dust */}
+      <div className="star-dust-container"></div>
     </div>
   );
 }

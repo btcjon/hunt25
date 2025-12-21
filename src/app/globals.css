@@ -1,37 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  --background: #FFFBEB;
-  --foreground: #171717;
+  --background: #050A18;
+  --foreground: #F8FAFC;
+  --star-gold: #F5D17E;
+  --star-gold-dark: #D4AF37;
+  --midnight: #050A18;
+  --indigo-deep: #1E293B;
   --font-crimson: 'Crimson Text', serif;
   --font-lora: 'Lora', serif;
+  --font-inter: 'Inter', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-star-gold: var(--star-gold);
+  --color-star-gold-dark: var(--star-gold-dark);
+  --color-midnight: var(--midnight);
+  --color-indigo-deep: var(--indigo-deep);
+  
+  --font-serif: var(--font-crimson);
+  --font-scripture: var(--font-lora);
+  --font-sans: var(--font-inter);
 
-  /* Sacred color palette */
-  --color-sacred-blue: #1E3A8A;
-  --color-candlelight: #D97706;
-  --color-sacred-gold: #CA8A04;
-  --color-soft-ivory: #FFFBEB;
-  --color-midnight: #0F172A;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0F172A;
-    --foreground: #FFFBEB;
-  }
+  --shadow-gold: 0 0 20px rgba(245, 209, 126, 0.3);
+  --shadow-gold-intense: 0 0 40px rgba(245, 209, 126, 0.5);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-indigo {
+    @apply bg-indigo-950/40 backdrop-blur-xl border border-white/10;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(245, 209, 126, 0.4);
+  }
+
+  .premium-button {
+    @apply bg-gradient-to-b from-star-gold to-star-gold-dark text-midnight font-bold shadow-gold hover:shadow-gold-intense active:scale-95 transition-all;
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.star {
+  @apply absolute bg-white rounded-full;
+  animation: twinkle var(--duration, 3s) infinite ease-in-out;
+  opacity: var(--opacity, 0.5);
 }

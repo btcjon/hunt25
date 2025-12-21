@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
+import Starfield from '@/components/game/Starfield';
 
 export default function Home() {
   const { setTeamName, resetGame } = useGameStore();
@@ -14,63 +15,65 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 flex flex-col items-center justify-center px-6">
-      <main className="w-full max-w-md text-center">
-        {/* Title */}
-        <div className="mb-6">
-          <span className="text-7xl">⭐</span>
-          <h1 className="text-5xl font-bold text-sacred-blue mt-4 font-crimson">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
+      <Starfield />
+      
+      <main className="relative z-10 w-full max-w-md text-center">
+        {/* Header */}
+        <div className="mb-12">
+          <p className="text-star-gold text-sm tracking-[0.3em] font-sans uppercase mb-2 animate-fade-in">
+            The Bennett Family
+          </p>
+          <h1 className="text-5xl md:text-6xl font-bold text-white font-serif tracking-tight leading-none text-glow">
             STAR SEEKERS
           </h1>
-          <p className="text-3xl font-semibold text-candlelight mt-1 font-lora">
-            Quest
+          <p className="text-2xl md:text-3xl font-light text-star-gold/90 mt-2 font-serif italic tracking-wide">
+            The Sacred Quest
           </p>
         </div>
 
         {/* Granddaddy Avatar */}
-        <div className="mb-6">
-          <div className="w-32 h-32 mx-auto bg-gradient-to-br from-candlelight to-amber-600 rounded-full flex items-center justify-center text-7xl shadow-xl">
-            👴
+        <div className="mb-10 group">
+          <div className="relative w-36 h-36 mx-auto">
+            <div className="absolute inset-0 bg-star-gold/20 rounded-full blur-2xl group-hover:bg-star-gold/30 transition-all duration-700"></div>
+            <div className="relative z-10 w-full h-full rounded-full border-2 border-star-gold/50 glass-indigo flex items-center justify-center text-7xl shadow-2xl transition-transform duration-500 group-hover:scale-105">
+              👴
+            </div>
+            {/* Pulsing Ring */}
+            <div className="absolute inset-0 rounded-full border border-star-gold/30 animate-ping opacity-20"></div>
           </div>
         </div>
 
-        {/* Welcome Message */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-6 border-2 border-sacred-gold/30 shadow-lg">
-          <p className="text-2xl text-sacred-blue font-lora mb-2">
-            Welcome,
+        {/* Welcome Message Card */}
+        <div className="glass-indigo rounded-3xl p-8 mb-10 shadow-glass border-white/5">
+          <p className="text-lg text-white/90 font-sans leading-relaxed">
+            Granddaddy has prepared a special Christmas adventure for his favorite seekers:
           </p>
-          <p className="text-3xl font-bold text-sacred-gold font-crimson mb-3">
-            Bennett Family!
-          </p>
-          <p className="text-lg text-sacred-blue/80 italic font-lora">
-            Granddaddy has prepared a special Christmas adventure just for you...
-          </p>
-        </div>
-
-        {/* Grandchildren */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Mackenzie</span>
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Braxton</span>
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Juniper</span>
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Michael</span>
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Ben</span>
-          <span className="px-3 py-1 bg-sacred-gold/20 rounded-full text-sacred-blue font-medium">Ivy</span>
+          
+          {/* Grandchildren Chips */}
+          <div className="flex flex-wrap justify-center gap-2 mt-6">
+            {['Mackenzie', 'Braxton', 'Juniper', 'Michael', 'Ben', 'Ivy'].map((name) => (
+              <span key={name} className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-star-gold text-sm font-medium backdrop-blur-md">
+                {name}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Start Button */}
         <button
           onClick={handleStart}
-          className="w-full py-5 text-2xl font-bold text-white bg-sacred-blue rounded-xl shadow-lg hover:bg-blue-900 transition-all active:scale-95"
+          className="premium-button w-full py-6 text-2xl tracking-widest uppercase mb-8"
         >
-          BEGIN QUEST ⭐
+          Begin Journey
         </button>
 
-        {/* Footer */}
-        <div className="mt-8 px-4 py-3 bg-white/50 rounded-lg border-l-4 border-sacred-gold">
-          <p className="text-base text-sacred-blue italic font-lora">
+        {/* Scripture Quote */}
+        <div className="mt-4 px-6 border-l-2 border-star-gold/30">
+          <p className="text-base text-white/70 italic font-scripture leading-relaxed">
             &ldquo;We saw His star when it rose and have come to worship Him.&rdquo;
           </p>
-          <p className="text-sm text-candlelight font-semibold mt-1">
+          <p className="text-xs text-star-gold font-sans tracking-widest uppercase mt-2 opacity-80">
             — Matthew 2:2
           </p>
         </div>

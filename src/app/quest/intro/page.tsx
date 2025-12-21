@@ -6,6 +6,8 @@ import { useGameStore } from '@/lib/game/state';
 import { INTRO_DIALOG } from '@/lib/ai/granddaddy';
 import { speak } from '@/lib/voice/elevenlabs';
 import { speakFallback } from '@/lib/voice/webSpeech';
+import Starfield from '@/components/game/Starfield';
+import ReplayAudio from '@/components/game/ReplayAudio';
 
 export default function IntroPage() {
   const router = useRouter();
@@ -62,72 +64,68 @@ export default function IntroPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 flex flex-col items-center justify-between px-4 py-8">
+    <div className="relative min-h-screen flex flex-col items-center justify-between px-4 py-8 overflow-hidden">
+      <Starfield />
+      
       {/* Header */}
-      <div className="text-center">
-        <p className="text-xl text-sacred-blue font-lora">Welcome, {teamName}!</p>
+      <div className="relative z-10 text-center mt-4">
+        <p className="text-star-gold text-sm tracking-[0.3em] font-sans uppercase mb-1">
+          Welcome
+        </p>
+        <h2 className="text-3xl font-serif text-white">{teamName}</h2>
       </div>
 
       {/* Granddaddy Speaking */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-md">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md">
         {/* Avatar */}
-        <div className={`w-36 h-36 bg-gradient-to-br from-candlelight to-amber-600 rounded-full flex items-center justify-center text-7xl shadow-xl mb-6 ${isSpeaking ? 'animate-pulse ring-4 ring-sacred-gold/30' : ''}`}>
-          👴
+        <div className="relative w-36 h-36 mb-8">
+          <div className={`absolute inset-0 bg-star-gold/20 rounded-full blur-2xl transition-all duration-700 ${isSpeaking ? 'scale-110 opacity-60' : 'scale-100 opacity-20'}`}></div>
+          <div className={`relative z-10 w-full h-full rounded-full border-2 border-star-gold/40 glass-indigo flex items-center justify-center text-7xl shadow-2xl transition-all duration-500 ${isSpeaking ? 'ring-4 ring-star-gold/30' : ''}`}>
+            👴
+          </div>
+          {isSpeaking && (
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-star-gold text-midnight text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase">
+              Speaking
+            </div>
+          )}
         </div>
 
-        {/* Speech Bubble */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl w-full max-h-[50vh] overflow-y-auto border-2 border-sacred-gold/20">
+        {/* Speech Bubble / Dialogue Card */}
+        <div className="glass-indigo rounded-3xl p-8 shadow-glass w-full max-h-[45vh] overflow-y-auto border-white/5 scrollbar-hide">
           {paragraphs.slice(0, currentParagraph + 1).map((paragraph, index) => (
             <p
               key={index}
-              className={`text-lg text-sacred-blue mb-4 last:mb-0 leading-relaxed ${index === currentParagraph ? 'animate-fade-in' : ''}`}
+              className={`text-lg text-white/90 mb-6 last:mb-0 leading-relaxed font-sans ${index === currentParagraph ? 'animate-in fade-in slide-in-from-bottom-4 duration-1000' : ''}`}
             >
               {paragraph}
             </p>
           ))}
         </div>
-
-        {/* Speaking Indicator */}
-        {isSpeaking && (
-          <div className="mt-4 flex items-center gap-2 text-candlelight">
-            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce" />
-            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce delay-100" />
-            <span className="w-2 h-2 bg-candlelight rounded-full animate-bounce delay-200" />
-            <span className="ml-2 font-lora">Granddaddy is speaking...</span>
-          </div>
-        )}
       </main>
 
       {/* Buttons */}
-      <div className="w-full max-w-md space-y-3">
+      <div className="relative z-10 w-full max-w-md space-y-4 mb-4">
+        {/* Replay Button */}
+        <div className="flex justify-center mb-2">
+          <ReplayAudio onReplay={speakIntro} isPlaying={isSpeaking} />
+        </div>
+
         {isReady ? (
           <button
             onClick={handleStart}
-            className="w-full py-5 text-2xl font-bold text-white bg-sacred-blue rounded-xl shadow-lg hover:bg-blue-900 transition-all active:scale-95"
+            className="premium-button w-full py-6 text-xl tracking-widest uppercase rounded-2xl"
           >
-            WE&apos;RE ALL READY! 🎯
+            We&apos;re Ready, Granddaddy
           </button>
         ) : (
           <button
             onClick={handleSkip}
-            className="w-full py-3 text-lg font-medium text-sacred-blue bg-white border-2 border-sacred-gold/30 rounded-xl hover:bg-amber-50 transition-all"
+            className="w-full py-4 text-sm font-medium text-star-gold/70 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all uppercase tracking-widest"
           >
-            Skip Intro →
+            Skip Intro
           </button>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-      `}</style>
     </div>
   );
 }
