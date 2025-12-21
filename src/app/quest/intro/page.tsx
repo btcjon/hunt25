@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { INTRO_DIALOG } from '@/lib/ai/granddaddy';
-import { speak, unlockAudioContext } from '@/lib/voice/elevenlabs';
+import { speak, stopAudio, unlockAudioContext } from '@/lib/voice/elevenlabs';
 // Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
 import ReplayAudio from '@/components/game/ReplayAudio';
@@ -60,10 +60,13 @@ export default function IntroPage() {
   }, [isSpeaking, currentParagraph, paragraphs.length]);
 
   const handleStart = () => {
+    stopAudio();
+    setSpeaking(false);
     router.push('/quest/1');
   };
 
   const handleSkip = () => {
+    stopAudio();
     setSpeaking(false);
     router.push('/quest/1');
   };

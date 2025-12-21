@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { CLUES } from '@/lib/game/clues';
-import { speak } from '@/lib/voice/elevenlabs';
+import { speak, stopAudio } from '@/lib/voice/elevenlabs';
 // Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
 import ReplayAudio from '@/components/game/ReplayAudio';
@@ -199,6 +199,8 @@ export default function ClueScreen({ params }: PageProps) {
   };
 
   const handleSuccess = () => {
+    stopAudio(); // Stop any playing audio before navigating
+    setSpeaking(false);
     collectSymbol(clue.symbol);
     advanceToNextStop();
     router.push(`/quest/celebration/${stopNumber}`);

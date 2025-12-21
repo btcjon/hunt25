@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { CLUES } from '@/lib/game/clues';
-import { speak } from '@/lib/voice/elevenlabs';
+import { speak, stopAudio } from '@/lib/voice/elevenlabs';
 // Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
 import ReplayAudio from '@/components/game/ReplayAudio';
@@ -54,6 +54,8 @@ export default function CelebrationPage({ params }: PageProps) {
   }, [speakCelebration, audioUnlocked]);
 
   const handleNext = () => {
+    stopAudio(); // Stop any playing audio before navigating
+    setSpeaking(false);
     if (currentStop > 8) {
       router.push('/quest/finale');
     } else {
