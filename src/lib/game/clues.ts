@@ -83,7 +83,7 @@ Ascend to the summit and see waves rolling by!"`,
     name: "MARY & JOSEPH",
     fromLocation: "Observation Deck (Beachfront)",
     toLocation: "Twin Painted Chairs (Nature Area by Magnolia Lake)",
-    gps: "33°37'25\"N 78°57'32\"W",
+    gps: "33.6238099, -78.9589867",
     verse: `"The journey continues—now into the trees!
 Where dogs run and play and discoveries tease.
 By the lake where the turtles and nature folk dwell,
