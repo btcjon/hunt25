@@ -116,10 +116,10 @@ Like Mary and Joseph on that first holy night!"`,
     gps: "33°37'22\"N 78°57'26\"W",
     verse: `"Congratulations, you are on the right path—now treasures await!
 The Wise Men brought GIFTS—and they couldn't be late.
-Seek where laughter echoes and joy fills the air,
-Step THROUGH the threshold—what you seek waits in there.
-Near evergreen branches with boxes wrapped tight—
-The Magi presented their gifts on that night!"`,
+Head to where families all play,
+Step INSIDE and find what you seek right away.
+A tree decked in lights with wrapped boxes below—
+Gold, frankincense, myrrh... what a generous show!"`,
     scripture: "Matthew 2:11",
     scriptureText: "They presented Him with gifts of gold, frankincense, and myrrh.",
     hint: "Think about where families gather when it's too cold outside. Cross the threshold... treasures wait near where evergreen meets celebration.",
