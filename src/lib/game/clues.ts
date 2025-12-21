@@ -58,7 +58,7 @@ The Wise Men set off through the thick and the thins.
 Find the lookout that watches where water meets land,
 Near a shop selling coffee and cold treats so grand.
 They traveled by night with their eyes on the sky—
-Climb up to the deck and see waves rolling by!"`,
+Ascend to the summit and see waves rolling by!"`,
     scripture: "Matthew 2:1",
     scriptureText: "Magi from the east came to Jerusalem.",
     hint: "Where can you get a treat AND see forever? Think high places where waves meet sand.",
