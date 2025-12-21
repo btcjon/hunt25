@@ -235,7 +235,7 @@ This inn has a room and it's glowing with light!"`,
     name: "FULLNESS OF TIME",
     fromLocation: "Fireplace Pavilion (Near Front Entrance)",
     toLocation: "Clock Tower (Near Camptown / Sandy Mart)",
-    gps: "33°37'30\"N 78°57'28\"W",
+    gps: "33.6252934, -78.9578900",
     verse: `"The shelter is found—nearly done with your quest!
 One treasure remains, and it might be the best.
 Find what has HANDS but can't give you a wave,
