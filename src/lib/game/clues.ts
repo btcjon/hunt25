@@ -52,7 +52,7 @@ Onward you go now - no procrastination!"`,
     name: "THE JOURNEY",
     fromLocation: "Light Tree + Sandy Statue (Camptown)",
     toLocation: "Observation Deck (Beachfront)",
-    gps: "33°37'19\"N 78°57'22\"W",
+    gps: "33.6221122, -78.9562330",
     verse: `"The star's shining bright—now your JOURNEY begins!
 The Wise Men set off through the thick and the thins.
 Find the lookout that watches where water meets land,
