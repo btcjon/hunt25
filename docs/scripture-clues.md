@@ -1,26 +1,26 @@
-# Star Seekers' Quest — Scripture Clues v6
+# Star Seekers' Quest — Scripture Clues v7
 
 *Christmas Story Flow • Clear Location Format • Witty Rhymes*
 
------
+---
 
 ## THE STORY ARC (Updated Route)
 
-|Clue |From Location     |To Location                |Symbol          |
-|-----|------------------|---------------------------|----------------|
-|1    |HOME BASE         |Light Tree + Sandy         |THE STAR        |
-|2    |Light Tree        |Observation Deck           |THE JOURNEY     |
-|3    |Observation Deck  |Twin Chairs / Nature Area  |MARY & JOSEPH   |
-|4    |Twin Chairs       |Indoor Tree at Sandy Harbor|THE GIFTS       |
-|5    |Indoor Tree       |Mini Golf Village          |BETHLEHEM       |
-|6    |Mini Golf         |Sandy Mart (inside)        |THE ANGEL       |
-|7    |Sandy Mart        |Fireplace Pavilion         |THE INN         |
-|8    |Fireplace Pavilion|Clock Tower                |FULLNESS OF TIME|
-|FINAL|Clock Tower       |HOME BASE                  |BABY JESUS      |
+|Clue |From Location     |To Location                |Symbol          |GPS Coordinates|
+|-----|------------------|---------------------------|----------------|---------------|
+|1    |HOME BASE         |Light Tree + Sandy         |THE STAR        |33°37'28"N 78°57'26"W|
+|2    |Light Tree        |Observation Deck           |THE JOURNEY     |33°37'19"N 78°57'22"W|
+|3    |Observation Deck  |Twin Chairs / Nature Area  |MARY & JOSEPH   |33°37'25"N 78°57'32"W|
+|4    |Twin Chairs       |Indoor Tree at Sandy Harbor|THE GIFTS       |33°37'22"N 78°57'26"W|
+|5    |Indoor Tree       |Mini Golf Village          |BETHLEHEM       |33°37'23"N 78°57'26"W|
+|6    |Mini Golf         |Sandy Mart (inside)        |THE ANGEL       |33°37'29"N 78°57'29"W|
+|7    |Sandy Mart        |Fireplace Pavilion         |THE INN         |33°37'41"N 78°57'41"W|
+|8    |Fireplace Pavilion|Clock Tower                |FULLNESS OF TIME|33°37'30"N 78°57'28"W|
+|FINAL|Clock Tower       |HOME BASE                  |BABY JESUS      |—|
 
------
+---
 
-## CLUE 1: THE STAR
+## CLUE 1: THE STAR ⭐
 
 **📍 YOU ARE AT:** Home Base
 **🎯 FIND:** Giant Light Tree + Yellow Statue (Camptown Center)
@@ -34,41 +34,46 @@
 
 **Matthew 2:2** — *"We saw His star when it rose and have come to worship Him."*
 
-|Line |Rhyme        |
-|-----|-------------|
-|go   |show ✓       |
-|place|face ✓       |
-|bench|glint (slant)|
+**HINT:** Where do families gather for events? Look for something reaching toward the sky... and someone sunny resting nearby.
 
-**HINT:** Camptown center. Tallest Christmas light tree in the camp + giant yellow statue on a bench.
+**Visual Identifiers:**
+- 7-ft yellow starfish statue wearing sunglasses
+- Red Christmas bow on statue
+- Giant metal Christmas light tree
+- Red bow on top of light tree
+- Rope fence with wooden posts
+- Ocean Lakes and Sand Dunes signage
 
------
+---
 
-## CLUE 2: THE JOURNEY
+## CLUE 2: THE JOURNEY 🚶
 
 **📍 YOU ARE AT:** Light Tree + Sandy Statue (Camptown)
 **🎯 FIND:** Observation Deck (Beachfront)
 
 > *"The star's shining bright—now your JOURNEY begins!*
 > *The Wise Men set off through the thick and the thins.*
-> *Find the lookout that watches where water meets land,*
-> *Near a shop selling coffee and cold treats so grand.*
-> *They traveled by night with their eyes on the sky—*
-> *Climb up to the deck and see waves rolling by!"*
+> *Where SANDY holds warmth in a cup, look up high—*
+> *A place to stand watch where the seabirds fly by.*
+> *They traveled through deserts with faith as their guide—*
+> *Seek where the horizon stretches far and wide!"*
 
 **Matthew 2:1** — *"Magi from the east came to Jerusalem."*
 
-|Line  |Rhyme  |
-|------|-------|
-|begins|thins ✓|
-|land  |grand ✓|
-|sky   |by ✓   |
+**HINT:** Where can you get a treat AND see forever? Think high places where waves meet sand.
 
-**HINT:** Head toward the beach. Tall wooden lookout near Coffee & Creamery.
+**Visual Identifiers:**
+- Sandy's Coffee & Creamery oval sign
+- Starfish holding coffee cup
+- Sandy's Downunder surfboard-shaped sign
+- Observation tower with starfish flag
+- Wooden deck with railings
+- Blue Adirondack chairs
+- Palm trees
 
------
+---
 
-## CLUE 3: MARY & JOSEPH
+## CLUE 3: MARY & JOSEPH 👫
 
 **📍 YOU ARE AT:** Observation Deck (Beachfront)
 **🎯 FIND:** Twin Painted Chairs (Nature Area by Magnolia Lake)
@@ -82,41 +87,45 @@
 
 **Matthew 1:24** — *"Joseph did what the angel of the Lord commanded him."*
 
-|Line  |Rhyme  |
-|------|-------|
-|trees |tease ✓|
-|dwell |tell ✓ |
-|bright|night ✓|
+**HINT:** Nature has a special spot where four-legged friends roam free. What sits together watching the water?
 
-**HINT:** Head to the nature area where dogs play and creatures are discovered. Find two big colorful chairs by the lake.
+**Visual Identifiers:**
+- Two large painted Adirondack chairs
+- Blue and pink chairs with Sandy starfish designs
+- Magnolia Lake in background
+- Please Put Waste in its Place sign with Sandy
+- Nature Center Discovery Lab entrance sign
+- Shady trees by lakeside
 
------
+---
 
-## CLUE 4: THE GIFTS
+## CLUE 4: THE GIFTS 🎁
 
 **📍 YOU ARE AT:** Twin Chairs (Nature Area / Magnolia Lake)
 **🎯 FIND:** Indoor Christmas Tree (Inside Sandy Harbor Family Fun Center)
 
 > *"You found the sweet couple—now treasures await!*
 > *The Wise Men brought GIFTS—and they couldn't be late.*
-> *Head to the building where families all play,*
-> *Step INSIDE and you'll find what you seek right away.*
-> *A tree decked in lights with wrapped boxes below—*
-> *Gold, frankincense, myrrh… what a generous show!"*
+> *Seek where laughter echoes and joy fills the air,*
+> *Step THROUGH the threshold—what you seek waits in there.*
+> *Near evergreen branches with boxes wrapped tight—*
+> *The Magi presented their gifts on that night!"*
 
 **Matthew 2:11** — *"They presented Him with gifts of gold, frankincense, and myrrh."*
 
-|Line |Rhyme |
-|-----|------|
-|await|late ✓|
-|play |away ✓|
-|below|show ✓|
+**HINT:** Think about where families gather when it's too cold outside. Cross the threshold... treasures wait near where evergreen meets celebration.
 
-**HINT:** Go to Sandy Harbor Family Fun Center. Walk INSIDE. Find the Christmas tree with presents underneath.
+**Visual Identifiers:**
+- Sandy Harbor Family Fun Center oval entrance sign
+- Christmas tree with white star on top
+- Wrapped presents underneath tree
+- Light-up Santa figure on ladder
+- Light-up Reindeer with Santa hat
+- Happy Holidays window decorations
 
------
+---
 
-## CLUE 5: BETHLEHEM
+## CLUE 5: BETHLEHEM 🏘️
 
 **📍 YOU ARE AT:** Indoor Christmas Tree (Sandy Harbor Inside)
 **🎯 FIND:** Mini Golf Village (Sandy Harbor Outside)
@@ -130,17 +139,20 @@
 
 **Micah 5:2** — *"But you, Bethlehem… out of you will come a ruler over Israel."*
 
-|Line   |Rhyme |
-|-------|------|
-|go     |flow ✓|
-|small  |tall ✓|
-|through|you ✓ |
+**HINT:** Stay close! Sometimes the next treasure is just steps away. What's colorful and fun right outside?
 
-**HINT:** Don't leave Sandy Harbor! Go back OUTSIDE to the mini golf course. Colorful tiny buildings.
+**Visual Identifiers:**
+- Sandy Harbor Mini Golf oval sign
+- Fisherman's Wharf themed buildings
+- Yellow tower with Sandy Harbor logo
+- Harbor Marine Supplies sign on green building
+- Red, green, yellow painted structures
+- White picket fence
+- Palm trees and lighthouse
 
------
+---
 
-## CLUE 6: THE ANGEL
+## CLUE 6: THE ANGEL 👼
 
 **📍 YOU ARE AT:** Mini Golf Village (Sandy Harbor)
 **🎯 FIND:** Angel Tree Topper (Inside Sandy Mart)
@@ -154,17 +166,19 @@
 
 **Luke 2:10** — *"The angel said, 'Do not be afraid. I bring you good news that will cause great joy!'"*
 
-|Line |Rhyme  |
-|-----|-------|
-|word |heard ✓|
-|shop |top ✓  |
-|white|night ✓|
+**HINT:** Campers need supplies, right? Look UP when you get there... messengers often appear at the highest point.
 
-**HINT:** Head to the camp store. Go INSIDE. Look at the very TOP of their Christmas tree.
+**Visual Identifiers:**
+- Sandy Mart exterior sign (red/white)
+- Starfish hanging off sign
+- Christmas tree with angel tree topper
+- Angel in red/white robe
+- Fake fireplace display with stockings
+- Gifts under tree
 
------
+---
 
-## CLUE 7: THE INN
+## CLUE 7: THE INN 🏨
 
 **📍 YOU ARE AT:** Sandy Mart (Inside, at the Angel Tree)
 **🎯 FIND:** Fireplace Pavilion (Near Front Entrance)
@@ -178,17 +192,20 @@
 
 **Luke 2:7** — *"There was no guest room available for them."*
 
-|Line |Rhyme  |
-|-----|-------|
-|stay |away ✓ |
-|here |year ✓ |
-|tight|light ✓|
+**HINT:** Remember where your adventure at camp began? Return to the beginning... warmth and welcome await weary travelers.
 
-**HINT:** Think about where you FIRST drove into camp. Near that entrance, find the covered fireplace with stockings.
+**Visual Identifiers:**
+- Covered pavilion with stone fireplace
+- Red Christmas stockings on mantle
+- Large wreath with red bow
+- Two Adirondack chairs facing fireplace
+- Circular brick paver patio with compass/star design
+- Fountain nearby
+- Hanging flower baskets
 
------
+---
 
-## CLUE 8: FULLNESS OF TIME
+## CLUE 8: FULLNESS OF TIME ⏰
 
 **📍 YOU ARE AT:** Fireplace Pavilion (Near Front Entrance)
 **🎯 FIND:** Clock Tower (Near Camptown / Sandy Mart)
@@ -198,21 +215,23 @@
 > *Find what has HANDS but can't give you a wave,*
 > *A face with no mouth, yet it's perfectly brave.*
 > *WAIT—this one's got eyes! And it's rocking a bow!*
-> *God's timing was perfect… the CLOCK let Him know!"*
+> *When TIME was just right, God said 'Now is the show!'"*
 
 **Galatians 4:4** — *"But when the set time had fully come, God sent His Son."*
 
-|Line |Rhyme  |
-|-----|-------|
-|quest|best ✓ |
-|wave |brave ✓|
-|bow  |know ✓ |
+**HINT:** Head back toward where it all started. Something tall tells the time... and it has a friendly face you might recognize!
 
-**HINT:** Head back toward Camptown. The clock tower has a familiar face with sunglasses… and a big red Christmas bow!
+**Visual Identifiers:**
+- Tall clock tower structure
+- Clock face with Sandy starfish wearing sunglasses
+- Numbers 12, 3, 6, 9 visible
+- Large red Christmas bow on tower
+- Rope fence around base
+- Ornamental grasses and flower beds
 
------
+---
 
-## FINAL CLUE: BABY JESUS
+## FINAL CLUE: BABY JESUS 👶
 
 **📍 YOU ARE AT:** Clock Tower (Camptown)
 **🎯 FIND:** HOME BASE — The Greatest Treasure!
@@ -232,15 +251,7 @@
 
 **Luke 2:11** — *"Unto you is born this day in the city of David a Savior, who is Christ the Lord."*
 
-|Line |Rhyme  |
-|-----|-------|
-|eye  |sky ✓  |
-|true |you ✓  |
-|light|night ✓|
-|far  |star ✓ |
-|done |SON ✓  |
-
------
+---
 
 ## Backup Keywords (Adults Only)
 
@@ -255,32 +266,32 @@
 |7   |INN      |
 |8   |TIME     |
 
------
+---
 
 ## Route Map
 
 ```
 HOME BASE (1145 Seaside)
     ↓
-1. THE STAR — Light Tree + Sandy (Camptown)
+1. THE STAR ⭐ — Light Tree + Sandy (Camptown)
     ↓
-2. THE JOURNEY — Observation Deck (Beachfront)
+2. THE JOURNEY 🚶 — Observation Deck (Beachfront)
     ↓
-3. MARY & JOSEPH — Twin Chairs (Nature Area / Magnolia Lake)
+3. MARY & JOSEPH 👫 — Twin Chairs (Nature Area / Magnolia Lake)
     ↓
-4. THE GIFTS — Indoor Tree (Sandy Harbor INSIDE)
+4. THE GIFTS 🎁 — Indoor Tree (Sandy Harbor INSIDE)
     ↓
-5. BETHLEHEM — Mini Golf Village (Sandy Harbor OUTSIDE)
+5. BETHLEHEM 🏘️ — Mini Golf Village (Sandy Harbor OUTSIDE)
     ↓
-6. THE ANGEL — Tree Topper (Sandy Mart INSIDE)
+6. THE ANGEL 👼 — Tree Topper (Sandy Mart INSIDE)
     ↓
-7. THE INN — Fireplace Pavilion (Front Entrance Area)
+7. THE INN 🏨 — Fireplace Pavilion (Front Entrance Area)
     ↓
-8. FULLNESS OF TIME — Clock Tower (Camptown)
+8. FULLNESS OF TIME ⏰ — Clock Tower (Camptown)
     ↓
-HOME → BABY JESUS (The Greatest Treasure)
+HOME → BABY JESUS 👶 (The Greatest Treasure)
 ```
 
------
+---
 
 *"For unto us a child is born, unto us a son is given."* — Isaiah 9:6

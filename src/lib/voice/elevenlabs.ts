@@ -18,9 +18,9 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   const {
     text,
     voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || '245u2NGJdh44gV9eWM9n', // Granddaddy voice
-    modelId = 'eleven_turbo_v2_5',
-    stability = 0.5,
-    similarityBoost = 0.75,
+    modelId = 'eleven_turbo_v2_5', // ~75ms latency, 50% cheaper
+    stability = 0.7, // Higher for consistent narration
+    similarityBoost = 0.85, // Higher for custom clone fidelity
   } = options;
 
   const response = await fetch(`${ELEVENLABS_API_URL}/text-to-speech/${voiceId}/stream`, {

@@ -27,8 +27,8 @@ export const CLUES: Clue[] = [
 A STAR in the sky put on quite a show!
 Find the tallest bright tower of lights in this place,
 With a five-pointed friend wearing shades on her face.
-She's yellow and big, standing behind a bench—
-The star led the Wise Men… now follow the glint!"`,
+Looking toward your next destination.
+Onward you go now - no procrastination!"`,
     scripture: "Matthew 2:2",
     scriptureText: "We saw His star when it rose and have come to worship Him.",
     hint: "Where do families gather for events? Look for something reaching toward the sky... and someone sunny resting nearby.",

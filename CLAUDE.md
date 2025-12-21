@@ -121,5 +121,6 @@ Edit `src/lib/ai/granddaddy.ts` - modify system prompt or INTRO_DIALOG
 - Hint unlock: `HINT_UNLOCK_MINUTES` in `[stop]/page.tsx`
 - Karaoke speed: `wordsPerMinute` prop on KaraokeText
 
-### Update avatar
-Replace `/public/granddaddy.png`
+
+# Rules
+-always update live after changes
