@@ -28,6 +28,10 @@ export interface GameState {
   hintsUsed: Record<number, number>;
   recordHint: (stopId: number) => void;
 
+  // Clue start times (for 30-min hint unlock)
+  clueStartTimes: Record<number, number>;
+  recordClueStart: (stopId: number) => void;
+
   // Chat history for current stop
   chatHistory: Array<{ role: 'user' | 'granddaddy'; content: string }>;
   addMessage: (role: 'user' | 'granddaddy', content: string) => void;
@@ -46,6 +50,7 @@ const initialState = {
   isVerifying: false,
   verificationResult: null,
   hintsUsed: {},
+  clueStartTimes: {},
   chatHistory: [],
 };
 
@@ -76,6 +81,13 @@ export const useGameStore = create<GameState>()(
         hintsUsed: {
           ...state.hintsUsed,
           [stopId]: (state.hintsUsed[stopId] || 0) + 1,
+        },
+      })),
+
+      recordClueStart: (stopId) => set((state) => ({
+        clueStartTimes: {
+          ...state.clueStartTimes,
+          [stopId]: state.clueStartTimes[stopId] || Date.now(),
         },
       })),
 

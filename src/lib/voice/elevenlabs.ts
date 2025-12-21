@@ -1,4 +1,4 @@
-// ElevenLabs TTS Client
+// ElevenLabs TTS Client with Stop Support
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
@@ -10,10 +10,14 @@ interface TTSOptions {
   similarityBoost?: number;
 }
 
+// Global audio controller for stop functionality
+let currentAudioContext: AudioContext | null = null;
+let currentAudioSource: AudioBufferSourceNode | null = null;
+
 export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   const {
     text,
-    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'JoYo65swyP8hH6fVMeTO', // Granddaddy voice
+    voiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'oDTvsWCAHEDOJ8Kv9Y6Y', // Granddaddy voice
     modelId = 'eleven_turbo_v2_5',
     stability = 0.5,
     similarityBoost = 0.75,
@@ -43,23 +47,67 @@ export async function textToSpeech(options: TTSOptions): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
-// Play audio from ArrayBuffer
+// Play audio from ArrayBuffer with stop support
 export async function playAudio(audioData: ArrayBuffer): Promise<void> {
-  const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-  const audioBuffer = await audioContext.decodeAudioData(audioData);
+  // Stop any currently playing audio
+  stopAudio();
 
-  const source = audioContext.createBufferSource();
-  source.buffer = audioBuffer;
-  source.connect(audioContext.destination);
+  currentAudioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  const audioBuffer = await currentAudioContext.decodeAudioData(audioData);
+
+  currentAudioSource = currentAudioContext.createBufferSource();
+  currentAudioSource.buffer = audioBuffer;
+  currentAudioSource.connect(currentAudioContext.destination);
 
   return new Promise((resolve) => {
-    source.onended = () => resolve();
-    source.start(0);
+    if (currentAudioSource) {
+      currentAudioSource.onended = () => {
+        currentAudioSource = null;
+        resolve();
+      };
+      currentAudioSource.start(0);
+    } else {
+      resolve();
+    }
   });
+}
+
+// Stop currently playing audio
+export function stopAudio(): void {
+  // Stop ElevenLabs audio
+  if (currentAudioSource) {
+    try {
+      currentAudioSource.stop();
+    } catch {
+      // Already stopped
+    }
+    currentAudioSource = null;
+  }
+  if (currentAudioContext) {
+    try {
+      currentAudioContext.close();
+    } catch {
+      // Already closed
+    }
+    currentAudioContext = null;
+  }
+  // Also cancel any browser speech
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+// Check if audio is currently playing
+export function isAudioPlaying(): boolean {
+  return currentAudioSource !== null;
 }
 
 // Combined speak function
 export async function speak(text: string, voiceId?: string): Promise<void> {
+  // Cancel any browser speech before ElevenLabs plays
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
   const audioData = await textToSpeech({ text, voiceId });
   await playAudio(audioData);
 }

@@ -2,6 +2,15 @@
 
 *Visual guide mapping each treasure hunt stop to its reference photos*
 
+  | 1    | THE STAR         | ✅ 33°37'28"N 78°57'26"W |
+  | 2    | THE JOURNEY      | ✅ 33°37'19"N 78°57'22"W |
+  | 3    | MARY & JOSEPH    | ✅ 33°37'25"N 78°57'32"W |
+  | 4    | THE GIFTS        | 33°37'22"N 78°57'26"W          |
+  | 5    | BETHLEHEM        | 33°37'23"N 78°57'26"W        |
+  | 6    | THE ANGEL        | ✅ 33°37'29"N 78°57'29"W |
+  | 7    | THE INN          |     33°37'41"N 78°57'41"W          |
+  | 8    | FULLNESS OF TIME | 33°37'30"N 78°57'28"W          |
+
 -----
 
 ## STOP 1: THE STAR
@@ -11,6 +20,8 @@
 ### Symbol: ⭐ THE STAR
 
 *"We saw His star when it rose and have come to worship Him." — Matthew 2:2*
+
+**GPS:** `33°37'28"N 78°57'26"W`
 
 ### Reference Images:
 
@@ -31,9 +42,11 @@
 
 **Observation Deck / Coffee & Creamery (Beachfront)**
 
-### Symbol: 🌅 THE JOURNEY
+### Symbol: 🚶 THE JOURNEY
 
 *"Magi from the east came to Jerusalem." — Matthew 2:1*
+
+**GPS:** `33°37'19"N 78°57'22"W`
 
 ### Reference Images:
 
@@ -60,6 +73,8 @@
 
 *"Joseph did what the angel of the Lord commanded him." — Matthew 1:24*
 
+**GPS:** `33°37'25"N 78°57'32"W`
+
 ### Reference Images:
 
 - `IMG_3336.jpeg` — TWO colorful Sandy Adirondack chairs by lakeside
@@ -69,7 +84,7 @@
 ### Visual Identifiers:
 
 - Two large painted chairs (blue/pink) with Sandy starfish designs
-- Magnolia Lake with house reflections in background
+- Magnolia Lake in background
 - "Please Put Waste in its Place" sign with Sandy
 - Nature Center Discovery Lab entrance sign
 - Shady trees, peaceful lakeside setting
@@ -78,11 +93,13 @@
 
 ## STOP 4: THE GIFTS
 
-**Sandy Harbor Indoor Christmas Display**
+**Sandy Harbor Indoor Christmas Display** inside at arcade
 
 ### Symbol: 🎁 THE GIFTS
 
 *"They presented Him with gifts of gold, frankincense, and myrrh." — Matthew 2:11*
+
+**GPS:** *(pending)*
 
 ### Reference Images:
 
@@ -109,6 +126,8 @@
 
 *"But you, Bethlehem… out of you will come a ruler over Israel." — Micah 5:2*
 
+**GPS:** *(pending)*
+
 ### Reference Images:
 
 - `IMG_3342.jpeg` — Mini Golf sign with Sandy holding golf club
@@ -131,7 +150,9 @@
 
 ### Symbol: 👼 THE ANGEL
 
-*"The angel said, 'Do not be afraid. I bring you good news!'" — Luke 2:10*
+*"The angel said, 'Do not be afraid. I bring you good news that will cause great joy!'" — Luke 2:10*
+
+**GPS:** `33°37'29"N 78°57'29"W`
 
 ### Reference Images:
 
@@ -155,6 +176,8 @@
 
 *"There was no guest room available for them." — Luke 2:7*
 
+**GPS:** *(pending)*
+
 ### Reference Images:
 
 - `IMG_3346.jpeg` — Close-up of fireplace with stockings + wreath
@@ -175,9 +198,11 @@
 
 **Sandy Clock Tower (Near Camptown/Sandy Mart)**
 
-### Symbol: ⏰ THE FULLNESS OF TIME
+### Symbol: ⏰ FULLNESS OF TIME
 
 *"But when the set time had fully come, God sent His Son." — Galatians 4:4*
+
+**GPS:** *(pending)*
 
 ### Reference Images:
 
@@ -210,18 +235,18 @@
 
 -----
 
-## Quick Image Reference Table
+## Quick Reference Table
 
-|Stop|Symbol          |Location            |Image Files                           |
-|----|----------------|--------------------|--------------------------------------|
-|1   |THE STAR        |Light Tree + Sandy  |IMG_3328, IMG_3329, IMG_3330          |
-|2   |THE JOURNEY     |Observation Deck    |IMG_3332, IMG_3333, IMG_3334, IMG_3335|
-|3   |MARY & JOSEPH   |Twin Chairs / Nature|IMG_3336, IMG_3337, IMG_3338          |
-|4   |THE GIFTS       |Indoor Tree         |IMG_3339, IMG_3340, IMG_3341          |
-|5   |BETHLEHEM       |Mini Golf Village   |IMG_3342, IMG_3343                    |
-|6   |THE ANGEL       |Sandy Mart Angel    |IMG_3344, IMG_3345                    |
-|7   |THE INN         |Fireplace Pavilion  |IMG_3346, IMG_3347                    |
-|8   |FULLNESS OF TIME|Clock Tower         |IMG_3331                              |
+|Stop|Symbol|Name|Location|GPS|
+|----|------|----|----|---|
+|1|⭐|THE STAR|Light Tree + Sandy (Camptown)|33°37'28"N 78°57'26"W|
+|2|🚶|THE JOURNEY|Observation Deck (Beachfront)|33°37'19"N 78°57'22"W|
+|3|👫|MARY & JOSEPH|Twin Chairs (Nature Area)|33°37'25"N 78°57'32"W|
+|4|🎁|THE GIFTS|Indoor Tree (Sandy Harbor)|*pending*|
+|5|🏘️|BETHLEHEM|Mini Golf Village|*pending*|
+|6|👼|THE ANGEL|Sandy Mart (Angel Tree)|33°37'29"N 78°57'29"W|
+|7|🏨|THE INN|Fireplace Pavilion|*pending*|
+|8|⏰|FULLNESS OF TIME|Clock Tower|*pending*|
 
 -----
 

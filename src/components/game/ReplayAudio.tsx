@@ -1,40 +1,52 @@
 'use client';
 
+import { stopAudio } from '@/lib/voice/elevenlabs';
+
 interface ReplayAudioProps {
   onReplay: () => void;
   isPlaying?: boolean;
+  onStop?: () => void;
   className?: string;
 }
 
-export default function ReplayAudio({ onReplay, isPlaying = false, className = '' }: ReplayAudioProps) {
+export default function ReplayAudio({ onReplay, isPlaying = false, onStop, className = '' }: ReplayAudioProps) {
+  const handleClick = () => {
+    if (isPlaying) {
+      // Stop the audio
+      stopAudio();
+      onStop?.();
+    } else {
+      // Play the audio
+      onReplay();
+    }
+  };
+
   return (
     <button
-      onClick={onReplay}
-      disabled={isPlaying}
+      onClick={handleClick}
       className={`
         flex items-center justify-center gap-2
-        px-5 py-3
+        min-w-[140px] px-5 py-3
         glass-indigo rounded-full
         border border-star-gold/30
         text-star-gold text-sm font-medium
         transition-all duration-300
         hover:border-star-gold/60 hover:bg-star-gold/10
         active:scale-95
-        disabled:opacity-50 disabled:cursor-not-allowed
-        ${isPlaying ? 'animate-pulse' : ''}
+        ${isPlaying ? 'ring-2 ring-star-gold/30' : ''}
         ${className}
       `}
-      aria-label="Replay audio"
+      aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
     >
       {isPlaying ? (
         <>
-          <span className="text-lg">🔊</span>
-          <span>Playing...</span>
+          <span className="text-lg">⏹️</span>
+          <span>Stop</span>
         </>
       ) : (
         <>
-          <span className="text-lg">🔁</span>
-          <span>Replay Audio</span>
+          <span className="text-lg">🔊</span>
+          <span>Replay</span>
         </>
       )}
     </button>

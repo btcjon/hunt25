@@ -163,6 +163,13 @@ export function abortListening(): void {
   }
 }
 
+// Cancel any ongoing browser speech
+export function cancelSpeech(): void {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
 // Fallback: Web Speech API TTS (browser built-in)
 export function speakFallback(text: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -170,6 +177,9 @@ export function speakFallback(text: string): Promise<void> {
       reject(new Error('Speech synthesis not supported'));
       return;
     }
+
+    // Cancel any ongoing speech first
+    window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9; // Slightly slower for kids

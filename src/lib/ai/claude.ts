@@ -51,7 +51,7 @@ export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResp
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 150, // Keep responses short for TTS
+    max_tokens: 200, // Keep responses short for TTS but allow room for fun answers
     system: systemPrompt,
     messages,
   });

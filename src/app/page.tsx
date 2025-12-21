@@ -25,19 +25,19 @@ export default function Home() {
             The Bennett Family
           </p>
           <h1 className="text-5xl md:text-6xl font-bold text-white font-serif tracking-tight leading-none text-glow">
-            STAR SEEKERS
+            Christmas Quest
           </h1>
           <p className="text-2xl md:text-3xl font-light text-star-gold/90 mt-2 font-serif italic tracking-wide">
-            The Sacred Quest
+            Follow the Star
           </p>
         </div>
 
         {/* Granddaddy Avatar */}
         <div className="mb-10 group">
-          <div className="relative w-36 h-36 mx-auto">
+          <div className="relative w-44 h-44 sm:w-52 sm:h-52 mx-auto">
             <div className="absolute inset-0 bg-star-gold/20 rounded-full blur-2xl group-hover:bg-star-gold/30 transition-all duration-700"></div>
-            <div className="relative z-10 w-full h-full rounded-full border-2 border-star-gold/50 glass-indigo flex items-center justify-center text-7xl shadow-2xl transition-transform duration-500 group-hover:scale-105">
-              👴
+            <div className="relative z-10 w-full h-full rounded-full border-2 border-star-gold/50 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105">
+              <img src="/granddaddy.png" alt="Granddaddy" className="w-full h-full object-cover" />
             </div>
             {/* Pulsing Ring */}
             <div className="absolute inset-0 rounded-full border border-star-gold/30 animate-ping opacity-20"></div>

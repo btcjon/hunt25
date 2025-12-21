@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Star Seekers Quest",
+  title: "Bennett Christmas Quest",
   description: "A voice-first Christmas treasure hunt adventure with Granddaddy!",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Star Seekers",
+    title: "Christmas Quest",
   },
 };
 

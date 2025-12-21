@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { CLUES, BACKUP_KEYWORDS } from '@/lib/game/clues';
 import { speak } from '@/lib/voice/elevenlabs';
-import { speakFallback } from '@/lib/voice/webSpeech';
-import { startListening, stopListening, isSpeechRecognitionSupported } from '@/lib/voice/webSpeech';
+// Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
+import ReplayAudio from '@/components/game/ReplayAudio';
+import KaraokeText from '@/components/game/KaraokeText';
 
 interface PageProps {
   params: Promise<{ stop: string }>;
@@ -24,19 +25,31 @@ export default function ClueScreen({ params }: PageProps) {
     recordHint,
     setSpeaking,
     isSpeaking,
-    isListening,
-    setListening,
     addMessage,
     chatHistory,
     collectSymbol,
     advanceToNextStop,
+    clueStartTimes,
+    recordClueStart,
   } = useGameStore();
 
   const [showHint, setShowHint] = useState(false);
-  const [transcript, setTranscript] = useState('');
   const [granddaddyResponse, setGranddaddyResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [chatTimeRemaining, setChatTimeRemaining] = useState<number | null>(null);
+  const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [overridePassword, setOverridePassword] = useState('');
+  const [overrideError, setOverrideError] = useState(false);
+  const [textInput, setTextInput] = useState('');
+  const [lastUserMessage, setLastUserMessage] = useState('');
+  const [showHintOverrideModal, setShowHintOverrideModal] = useState(false);
+  const [hintPassword, setHintPassword] = useState('');
+  const [hintPasswordError, setHintPasswordError] = useState(false);
+
+  const HINT_UNLOCK_MINUTES = 0; // Disabled for testing
+  const CHAT_UNLOCK_MINUTES = 0; // Disabled - chat available immediately
 
   const clue = CLUES[stopNumber - 1];
 
@@ -45,11 +58,9 @@ export default function ClueScreen({ params }: PageProps) {
     if (!clue) return;
     setSpeaking(true);
     try {
-      try {
-        await speak(clue.verse);
-      } catch {
-        await speakFallback(clue.verse);
-      }
+      await speak(clue.verse);
+    } catch (error) {
+      console.error('ElevenLabs failed:', error);
     } finally {
       setSpeaking(false);
     }
@@ -60,42 +71,63 @@ export default function ClueScreen({ params }: PageProps) {
     return () => clearTimeout(timer);
   }, [speakClue]);
 
-  // Handle voice input
-  const handleTalk = () => {
-    if (!isSpeechRecognitionSupported()) {
-      alert('Voice recognition not supported in this browser');
-      return;
+  // Record clue start time (only once per stop)
+  useEffect(() => {
+    if (!clue) return;
+    recordClueStart(stopNumber);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopNumber]);
+
+  // Track countdown timers (hint and chat)
+  useEffect(() => {
+    if (!clue) return;
+
+    // Update timers every second
+    const interval = setInterval(() => {
+      const startTime = clueStartTimes[stopNumber] || Date.now();
+      const elapsed = Date.now() - startTime;
+
+      // Hint timer (15 min)
+      const hintUnlockTime = HINT_UNLOCK_MINUTES * 60 * 1000;
+      const hintRemaining = Math.max(0, hintUnlockTime - elapsed);
+      setTimeRemaining(hintRemaining);
+
+      // Chat timer (5 min)
+      const chatUnlockTime = CHAT_UNLOCK_MINUTES * 60 * 1000;
+      const chatRemaining = Math.max(0, chatUnlockTime - elapsed);
+      setChatTimeRemaining(chatRemaining);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [stopNumber, clue, clueStartTimes, HINT_UNLOCK_MINUTES, CHAT_UNLOCK_MINUTES]);
+
+  // Parent override handler
+  const handleParentOverride = () => {
+    if (overridePassword === '4343') {
+      handleSuccess();
+      setShowOverrideModal(false);
+    } else {
+      setOverrideError(true);
+      setTimeout(() => setOverrideError(false), 2000);
     }
-
-    setListening(true);
-    setTranscript('');
-
-    startListening({
-      onResult: (result) => {
-        setTranscript(result.transcript);
-        if (result.isFinal) {
-          handleUserMessage(result.transcript);
-        }
-      },
-      onError: (error) => {
-        console.error('Speech recognition error:', error);
-        setListening(false);
-      },
-      onEnd: () => {
-        setListening(false);
-      },
-    });
   };
 
-  const handleStopListening = () => {
-    stopListening();
-    setListening(false);
+  // Parent hint override handler
+  const handleHintOverride = () => {
+    if (hintPassword === '4343') {
+      setShowHint(true);
+      setShowHintOverrideModal(false);
+      setHintPassword('');
+    } else {
+      setHintPasswordError(true);
+      setTimeout(() => setHintPasswordError(false), 2000);
+    }
   };
 
   // Send message to Granddaddy
   const handleUserMessage = async (message: string) => {
-    setListening(false);
     setIsProcessing(true);
+    setLastUserMessage(message);
     addMessage('user', message);
 
     // Check for backup keyword
@@ -156,11 +188,9 @@ export default function ClueScreen({ params }: PageProps) {
   const speakResponse = async (text: string) => {
     setSpeaking(true);
     try {
-      try {
-        await speak(text);
-      } catch {
-        await speakFallback(text);
-      }
+      await speak(text);
+    } catch (error) {
+      console.error('ElevenLabs failed:', error);
     } finally {
       setSpeaking(false);
     }
@@ -191,13 +221,13 @@ export default function ClueScreen({ params }: PageProps) {
       <Starfield />
       
       {/* Header - Progress Stars */}
-      <header className="relative z-10 p-6 glass-indigo border-b-0">
+      <header className="relative z-10 p-3 sm:p-6 glass-indigo border-b-0">
         <div className="max-w-md mx-auto">
-          <div className="flex justify-center gap-3 mb-2">
+          <div className="flex justify-center gap-2 sm:gap-3 mb-2">
             {CLUES.map((_, i) => (
               <div
                 key={i}
-                className={`text-xl transition-all duration-500 ${
+                className={`text-base sm:text-xl transition-all duration-500 ${
                   i < stopNumber - 1
                     ? 'text-star-gold drop-shadow-[0_0_8px_rgba(245,209,126,0.6)]'
                     : i === stopNumber - 1
@@ -209,38 +239,38 @@ export default function ClueScreen({ params }: PageProps) {
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between text-[10px] tracking-[0.2em] font-sans uppercase text-white/50">
-            <span>The Bennett Quest</span>
-            <span>Stop {stopNumber} of 8</span>
+          <div className="flex items-center justify-between text-[9px] sm:text-[10px] tracking-[0.2em] font-sans uppercase text-white/50">
+            <span>Bennett Quest</span>
+            <span>Stop {stopNumber}/8</span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex-1 p-6 overflow-y-auto scrollbar-hide">
-        <div className="max-w-md mx-auto space-y-6">
+      <main className="relative z-10 flex-1 p-3 sm:p-6 overflow-y-auto scrollbar-hide">
+        <div className="max-w-md mx-auto space-y-4 sm:space-y-6">
           
           {/* Granddaddy Clue Card */}
-          <div className="glass-indigo rounded-3xl p-6 shadow-glass border-white/5">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="relative w-16 h-16 flex-shrink-0">
+          <div className="glass-indigo rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-glass border-white/5">
+            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="relative w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0">
                 <div className={`absolute inset-0 bg-star-gold/20 rounded-full blur-xl ${isSpeaking ? 'animate-pulse scale-110' : ''}`}></div>
-                <div className={`relative z-10 w-full h-full rounded-full border border-star-gold/30 glass flex items-center justify-center text-4xl shadow-xl ${isSpeaking ? 'ring-2 ring-star-gold/30' : ''}`}>
-                  👴
+                <div className={`relative z-10 w-full h-full rounded-full border-2 border-star-gold/30 overflow-hidden shadow-xl ${isSpeaking ? 'ring-2 ring-star-gold/30' : ''}`}>
+                  <img src="/granddaddy.png" alt="Granddaddy" className="w-full h-full object-cover" />
                 </div>
               </div>
-              <div className="pt-2">
-                <p className="text-star-gold text-xs font-sans tracking-widest uppercase mb-1">Granddaddy</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-white/50 text-xs">Clue is ready</span>
-                  <button onClick={speakClue} className="text-star-gold hover:text-white transition-colors">
-                    <span className="text-lg">🔊</span>
-                  </button>
-                </div>
+              <div className="pt-1 sm:pt-2 flex-1">
+                <p className="text-star-gold text-[10px] sm:text-xs font-sans tracking-widest uppercase mb-1">Granddaddy</p>
+                <ReplayAudio onReplay={speakClue} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
               </div>
             </div>
-            <p className="text-white text-xl leading-relaxed font-serif italic text-glow">
-              &ldquo;{clue.verse}&rdquo;
+            <p className="text-base sm:text-xl leading-relaxed font-serif italic text-glow">
+              &ldquo;<KaraokeText
+                text={clue.verse}
+                isPlaying={isSpeaking}
+                wordsPerMinute={130}
+                highlightClassName="text-white"
+              />&rdquo;
             </p>
           </div>
 
@@ -264,6 +294,17 @@ export default function ClueScreen({ params }: PageProps) {
                   {clue.hint}
                 </p>
               </div>
+            ) : timeRemaining !== null && timeRemaining > 0 ? (
+              <button
+                onClick={() => setShowHintOverrideModal(true)}
+                className="w-full py-4 text-center border border-white/5 rounded-2xl bg-white/5 hover:bg-white/10 transition-all"
+              >
+                <p className="text-white/30 text-xs font-sans tracking-[0.2em] uppercase mb-1">Hint unlocks in</p>
+                <p className="text-star-gold text-lg font-mono">
+                  {Math.floor(timeRemaining / 60000)}:{String(Math.floor((timeRemaining % 60000) / 1000)).padStart(2, '0')}
+                </p>
+                <p className="text-white/20 text-[10px] mt-1 tracking-widest">TAP FOR PARENT OVERRIDE</p>
+              </button>
             ) : (
               <button
                 onClick={handleShowHint}
@@ -274,59 +315,94 @@ export default function ClueScreen({ params }: PageProps) {
             )}
           </div>
 
-          {/* Granddaddy Chat Response */}
-          {granddaddyResponse && (
-            <div className="glass-indigo rounded-2xl p-5 border border-star-gold/30 animate-in zoom-in-95">
-              <p className="text-white/90 text-base leading-relaxed">
-                👴 {granddaddyResponse}
+          {/* User Message */}
+          {lastUserMessage && (
+            <div className="glass-indigo rounded-2xl p-4 border border-blue-500/20 animate-in fade-in">
+              <p className="text-blue-300 text-sm italic">
+                You: &ldquo;{lastUserMessage}&rdquo;
               </p>
             </div>
           )}
 
-          {/* Transcript / Listening State */}
-          {(isListening || transcript) && (
-            <div className="glass-indigo rounded-2xl p-4 border border-blue-500/20">
-              <p className="text-blue-300 text-sm italic">
-                {isListening ? 'Granddaddy is listening...' : `You: "${transcript}"`}
-              </p>
+          {/* Processing Indicator */}
+          {isProcessing && (
+            <div className="glass-indigo rounded-2xl p-4 border border-star-gold/30 animate-pulse">
+              <p className="text-star-gold text-sm">Granddaddy is thinking...</p>
+            </div>
+          )}
+
+          {/* Granddaddy Chat Response */}
+          {granddaddyResponse && !isProcessing && (
+            <div className="glass-indigo rounded-2xl p-4 border border-star-gold/30 animate-in zoom-in-95">
+              <div className="flex items-start gap-3">
+                <img src="/granddaddy.png" alt="Granddaddy" className="w-14 h-14 rounded-full object-cover flex-shrink-0 border border-star-gold/30" />
+                <p className="text-white/90 text-base leading-relaxed">
+                  {granddaddyResponse}
+                </p>
+              </div>
             </div>
           )}
         </div>
       </main>
 
       {/* Footer Actions */}
-      <footer className="relative z-10 p-6 pb-10 glass-indigo border-t-0 rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-        <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
-          {/* Talk Button */}
-          {isListening ? (
-            <button
-              onClick={handleStopListening}
-              className="py-5 px-4 bg-red-900/40 border border-red-500/50 text-white font-bold rounded-2xl shadow-xl flex items-center justify-center gap-3 animate-pulse"
-            >
-              <span className="text-2xl">⏹</span>
-              <span className="tracking-widest uppercase text-sm">Stop</span>
-            </button>
+      <footer className="relative z-10 p-3 sm:p-6 pb-6 sm:pb-10 glass-indigo border-t-0 rounded-t-2xl sm:rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+        <div className="max-w-md mx-auto space-y-3">
+          {/* Text Chat Input */}
+          {chatTimeRemaining !== null && chatTimeRemaining > 0 ? (
+            <div className="w-full py-3 text-center border border-white/10 rounded-xl bg-white/5">
+              <p className="text-white/40 text-xs tracking-widest uppercase">
+                Ask Granddaddy in {Math.floor(chatTimeRemaining / 60000)}:{String(Math.floor((chatTimeRemaining % 60000) / 1000)).padStart(2, '0')}
+              </p>
+              <p className="text-white/20 text-[10px] mt-1">Think on your own first!</p>
+            </div>
           ) : (
-            <button
-              onClick={handleTalk}
-              disabled={isSpeaking || isProcessing}
-              className="py-5 px-4 glass border border-white/20 text-white font-bold rounded-2xl shadow-xl flex items-center justify-center gap-3 disabled:opacity-30 active:scale-95 transition-all"
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (textInput.trim() && !isProcessing && !isSpeaking) {
+                  handleUserMessage(textInput.trim());
+                  setTextInput('');
+                }
+              }}
+              className="flex gap-2"
             >
-              <span className="text-2xl">🎤</span>
-              <span className="tracking-widest uppercase text-sm">Talk</span>
-            </button>
+              <input
+                type="text"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder="Ask Granddaddy..."
+                disabled={isProcessing || isSpeaking}
+                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-30"
+              />
+              <button
+                type="submit"
+                disabled={!textInput.trim() || isProcessing || isSpeaking}
+                className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-30 active:scale-95 transition-all"
+              >
+                ➤
+              </button>
+            </form>
           )}
 
           {/* Found It Button */}
           <button
             onClick={handlePhotoCapture}
             disabled={isSpeaking || isProcessing}
-            className="premium-button py-5 px-4 flex items-center justify-center gap-3"
+            className="premium-button w-full py-4 sm:py-5 px-3 sm:px-4 flex items-center justify-center gap-2 sm:gap-3"
           >
-            <span className="text-2xl">📷</span>
-            <span className="tracking-widest uppercase text-sm">Found it!</span>
+            <span className="text-xl sm:text-2xl">📷</span>
+            <span className="tracking-widest uppercase text-xs sm:text-sm">Found it!</span>
           </button>
         </div>
+
+        {/* Parent Override - Small discrete button */}
+        <button
+          onClick={() => setShowOverrideModal(true)}
+          className="w-full mt-3 py-2 text-[10px] font-sans tracking-[0.2em] uppercase text-white/20 hover:text-white/40 transition-colors"
+        >
+          Parent Override
+        </button>
       </footer>
 
       {/* Camera Modal */}
@@ -339,27 +415,164 @@ export default function ClueScreen({ params }: PageProps) {
             setGranddaddyResponse(response);
             speakResponse(response);
           }}
+          targetGPS={clue.gps}
         />
+      )}
+
+      {/* Parent Override Modal */}
+      {showOverrideModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={() => setShowOverrideModal(false)}></div>
+          <div className="relative z-10 glass-indigo border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
+            <h3 className="text-white text-lg font-serif text-center mb-4">Parent Override</h3>
+            <p className="text-white/50 text-xs text-center mb-4">Enter code to skip to next clue</p>
+            <input
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={4}
+              value={overridePassword}
+              onChange={(e) => setOverridePassword(e.target.value)}
+              placeholder="Enter 4-digit code"
+              className={`w-full px-4 py-3 bg-white/10 border ${overrideError ? 'border-red-500' : 'border-white/20'} rounded-xl text-white text-center text-xl tracking-[0.5em] placeholder:text-white/30 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-star-gold/50`}
+              autoFocus
+            />
+            {overrideError && (
+              <p className="text-red-400 text-xs text-center mt-2">Incorrect code</p>
+            )}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowOverrideModal(false);
+                  setOverridePassword('');
+                  setOverrideError(false);
+                }}
+                className="flex-1 py-3 text-xs tracking-widest uppercase text-white/50 border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleParentOverride}
+                className="flex-1 py-3 text-xs tracking-widest uppercase bg-star-gold text-midnight font-bold rounded-xl hover:bg-star-gold/90 transition-colors"
+              >
+                Unlock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hint Override Modal */}
+      {showHintOverrideModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={() => setShowHintOverrideModal(false)}></div>
+          <div className="relative z-10 glass-indigo border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
+            <h3 className="text-white text-lg font-serif text-center mb-4">Unlock Hint Early</h3>
+            <p className="text-white/50 text-xs text-center mb-4">Enter parent code to reveal hint</p>
+            <input
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={4}
+              value={hintPassword}
+              onChange={(e) => setHintPassword(e.target.value)}
+              placeholder="Enter 4-digit code"
+              className={`w-full px-4 py-3 bg-white/10 border ${hintPasswordError ? 'border-red-500' : 'border-white/20'} rounded-xl text-white text-center text-xl tracking-[0.5em] placeholder:text-white/30 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-star-gold/50`}
+              autoFocus
+            />
+            {hintPasswordError && (
+              <p className="text-red-400 text-xs text-center mt-2">Incorrect code</p>
+            )}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowHintOverrideModal(false);
+                  setHintPassword('');
+                  setHintPasswordError(false);
+                }}
+                className="flex-1 py-3 text-xs tracking-widest uppercase text-white/50 border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleHintOverride}
+                className="flex-1 py-3 text-xs tracking-widest uppercase bg-star-gold text-midnight font-bold rounded-xl hover:bg-star-gold/90 transition-colors"
+              >
+                Show Hint
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-// Updated Camera Modal Component
+// Updated Camera Modal Component with GPS verification
 function CameraModal({
   stopNumber,
   onClose,
   onSuccess,
   onPartial,
+  targetGPS,
 }: {
   stopNumber: number;
   onClose: () => void;
   onSuccess: () => void;
   onPartial: (response: string) => void;
+  targetGPS?: string;
 }) {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isCheckingGPS, setIsCheckingGPS] = useState(false);
+  const [gpsStatus, setGpsStatus] = useState<'idle' | 'checking' | 'success' | 'far' | 'error'>('idle');
+  const [gpsDistance, setGpsDistance] = useState<number | null>(null);
   const [error, setError] = useState('');
+
+  // GPS verification
+  const checkGPS = async () => {
+    if (!targetGPS) {
+      setError('No GPS coordinates for this stop');
+      return;
+    }
+
+    setIsCheckingGPS(true);
+    setGpsStatus('checking');
+    setError('');
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        });
+      });
+
+      const { isWithinRadius, GPS_RADIUS_METERS } = await import('@/lib/game/gps');
+      const result = isWithinRadius(
+        position.coords.latitude,
+        position.coords.longitude,
+        targetGPS,
+        GPS_RADIUS_METERS
+      );
+
+      setGpsDistance(result.distance);
+
+      if (result.isClose) {
+        setGpsStatus('success');
+        setTimeout(() => onSuccess(), 1000);
+      } else {
+        setGpsStatus('far');
+      }
+    } catch (err) {
+      console.error('GPS error:', err);
+      setGpsStatus('error');
+      setError('Could not get location. Enable GPS and try again.');
+    } finally {
+      setIsCheckingGPS(false);
+    }
+  };
 
   const handleCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -414,22 +627,66 @@ function CameraModal({
         {/* Decorative corner stars */}
         <div className="absolute top-2 left-2 text-star-gold/20 text-xs">★</div>
         <div className="absolute top-2 right-2 text-star-gold/20 text-xs">★</div>
-        
+
         <h2 className="text-xl font-serif text-white text-center mb-6 tracking-wide">Prove Your Finding</h2>
 
-        {photo ? (
-          <div className="relative rounded-2xl overflow-hidden border-2 border-star-gold/30">
-            <img src={photo} alt="Captured" className="w-full aspect-[4/3] object-cover" />
-            {isVerifying && (
-              <div className="absolute inset-0 bg-midnight/60 backdrop-blur-sm flex flex-col items-center justify-center">
-                <div className="w-12 h-12 border-4 border-star-gold border-t-transparent rounded-full animate-spin mb-4"></div>
-                <div className="text-star-gold text-xs tracking-widest uppercase font-bold">Verifying...</div>
-              </div>
-            )}
+        {/* GPS Verification - Primary method */}
+        {targetGPS && (
+          <div className="mb-6">
+            <button
+              onClick={checkGPS}
+              disabled={isCheckingGPS || gpsStatus === 'success'}
+              className={`w-full py-4 rounded-2xl border-2 transition-all ${
+                gpsStatus === 'success'
+                  ? 'bg-green-500/20 border-green-500/50 text-green-400'
+                  : gpsStatus === 'far'
+                  ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
+                  : gpsStatus === 'error'
+                  ? 'bg-red-500/20 border-red-500/50 text-red-400'
+                  : 'bg-star-gold/10 border-star-gold/30 text-star-gold hover:bg-star-gold/20'
+              }`}
+            >
+              {isCheckingGPS ? (
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-5 h-5 border-2 border-star-gold border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm tracking-widest uppercase">Checking Location...</span>
+                </div>
+              ) : gpsStatus === 'success' ? (
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-2xl">✓</span>
+                  <span className="text-sm tracking-widest uppercase">You found it!</span>
+                </div>
+              ) : gpsStatus === 'far' ? (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-sm tracking-widest uppercase">Not quite! {gpsDistance}m away</span>
+                  <span className="text-xs opacity-70">Tap to try again</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-2xl">📍</span>
+                  <span className="text-sm tracking-widest uppercase">Verify My Location</span>
+                </div>
+              )}
+            </button>
+            <p className="text-white/30 text-[10px] text-center mt-2 tracking-wider">Must be within 15 meters</p>
           </div>
-        ) : (
-          <div className="aspect-[4/3] glass bg-white/5 rounded-2xl flex items-center justify-center border-2 border-dashed border-white/10">
-            <label className="cursor-pointer text-center group">
+        )}
+
+        {/* Photo Verification - Fallback */}
+        <div className="border-t border-white/10 pt-4">
+          <p className="text-white/40 text-[10px] text-center mb-3 tracking-widest uppercase">Or use photo</p>
+          {photo ? (
+            <div className="relative rounded-2xl overflow-hidden border-2 border-star-gold/30">
+              <img src={photo} alt="Captured" className="w-full aspect-[4/3] object-cover" />
+              {isVerifying && (
+                <div className="absolute inset-0 bg-midnight/60 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-star-gold border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="text-star-gold text-xs tracking-widest uppercase font-bold">Verifying...</div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <label className="cursor-pointer block">
               <input
                 type="file"
                 accept="image/*"
@@ -437,13 +694,13 @@ function CameraModal({
                 onChange={handleCapture}
                 className="hidden"
               />
-              <div className="w-24 h-24 bg-star-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-star-gold/20 group-hover:scale-110 transition-transform duration-500">
-                <span className="text-5xl">📷</span>
+              <div className="py-3 px-4 rounded-xl border border-white/20 bg-white/5 flex items-center justify-center gap-2 hover:bg-white/10 transition-colors">
+                <span className="text-xl">📷</span>
+                <span className="text-white/60 text-xs tracking-widest uppercase">Take Photo</span>
               </div>
-              <p className="text-white/60 text-sm tracking-widest uppercase">Tap to Capture</p>
             </label>
-          </div>
-        )}
+          )}
+        </div>
 
         {error && (
           <p className="text-red-400 text-xs text-center mt-4 uppercase tracking-widest">{error}</p>
@@ -451,7 +708,7 @@ function CameraModal({
 
         <button
           onClick={onClose}
-          className="w-full mt-8 py-4 text-xs tracking-[0.3em] uppercase text-white/40 font-bold hover:text-white transition-colors"
+          className="w-full mt-6 py-4 text-xs tracking-[0.3em] uppercase text-white/40 font-bold hover:text-white transition-colors"
         >
           Cancel
         </button>

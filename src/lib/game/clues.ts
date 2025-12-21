@@ -6,6 +6,7 @@ export interface Clue {
   name: string;
   fromLocation: string;
   toLocation: string;
+  gps?: string; // GPS coordinates for verification
   verse: string;
   scripture: string;
   scriptureText: string;
@@ -21,6 +22,7 @@ export const CLUES: Clue[] = [
     name: "THE STAR",
     fromLocation: "Home Base",
     toLocation: "Giant Light Tree + Yellow Statue (Camptown Center)",
+    gps: "33°37'28\"N 78°57'26\"W",
     verse: `"Wise Men looked up and they knew where to go—
 A STAR in the sky put on quite a show!
 Find the tallest bright tower of lights in this place,
@@ -29,7 +31,7 @@ She's yellow and big, sitting right on a bench—
 The star led the Wise Men… now follow the glint!"`,
     scripture: "Matthew 2:2",
     scriptureText: "We saw His star when it rose and have come to worship Him.",
-    hint: "Camptown center. Tallest Christmas light tree in the camp + giant yellow statue on a bench.",
+    hint: "Where do families gather for events? Look for something reaching toward the sky... and someone sunny resting nearby.",
     visualIdentifiers: [
       "7-ft yellow starfish statue wearing sunglasses",
       "Red Christmas bow on statue",
@@ -50,15 +52,16 @@ The star led the Wise Men… now follow the glint!"`,
     name: "THE JOURNEY",
     fromLocation: "Light Tree + Sandy Statue (Camptown)",
     toLocation: "Observation Deck (Beachfront)",
+    gps: "33°37'19\"N 78°57'22\"W",
     verse: `"The star's shining bright—now your JOURNEY begins!
 The Wise Men set off through the thick and the thins.
-Find the lookout that watches where water meets land,
-Near a shop selling coffee and cold treats so grand.
-They traveled by night with their eyes on the sky—
-Climb up to the deck and see waves rolling by!"`,
+Where SANDY holds warmth in a cup, look up high—
+A place to stand watch where the seabirds fly by.
+They traveled through deserts with faith as their guide—
+Seek where the horizon stretches far and wide!"`,
     scripture: "Matthew 2:1",
     scriptureText: "Magi from the east came to Jerusalem.",
-    hint: "Head toward the beach. Tall wooden lookout near Coffee & Creamery.",
+    hint: "Where can you get a treat AND see forever? Think high places where waves meet sand.",
     visualIdentifiers: [
       "Sandy's Coffee & Creamery oval sign",
       "Starfish holding coffee cup",
@@ -80,6 +83,7 @@ Climb up to the deck and see waves rolling by!"`,
     name: "MARY & JOSEPH",
     fromLocation: "Observation Deck (Beachfront)",
     toLocation: "Twin Painted Chairs (Nature Area by Magnolia Lake)",
+    gps: "33°37'25\"N 78°57'32\"W",
     verse: `"The journey continues—now into the trees!
 Where dogs run and play and discoveries tease.
 By the lake where the turtles and nature folk dwell,
@@ -88,7 +92,7 @@ Watching over the water and painted up bright—
 Like Mary and Joseph on that first holy night!"`,
     scripture: "Matthew 1:24",
     scriptureText: "Joseph did what the angel of the Lord commanded him.",
-    hint: "Head to the nature area where dogs play and creatures are discovered. Find two big colorful chairs by the lake.",
+    hint: "Nature has a special spot where four-legged friends roam free. What sits together watching the water?",
     visualIdentifiers: [
       "Two large painted Adirondack chairs",
       "Blue and pink chairs with Sandy starfish designs",
@@ -109,15 +113,16 @@ Like Mary and Joseph on that first holy night!"`,
     name: "THE GIFTS",
     fromLocation: "Twin Chairs (Nature Area / Magnolia Lake)",
     toLocation: "Indoor Christmas Tree (Inside Sandy Harbor Family Fun Center)",
+    gps: "33°37'22\"N 78°57'26\"W",
     verse: `"You found the sweet couple—now treasures await!
 The Wise Men brought GIFTS—and they couldn't be late.
-Head to the building where families all play,
-Step INSIDE and you'll find what you seek right away.
-A tree decked in lights with wrapped boxes below—
-Gold, frankincense, myrrh… what a generous show!"`,
+Seek where laughter echoes and joy fills the air,
+Step THROUGH the threshold—what you seek waits in there.
+Near evergreen branches with boxes wrapped tight—
+The Magi presented their gifts on that night!"`,
     scripture: "Matthew 2:11",
     scriptureText: "They presented Him with gifts of gold, frankincense, and myrrh.",
-    hint: "Go to Sandy Harbor Family Fun Center. Walk INSIDE. Find the Christmas tree with presents underneath.",
+    hint: "Think about where families gather when it's too cold outside. Cross the threshold... treasures wait near where evergreen meets celebration.",
     visualIdentifiers: [
       "Sandy Harbor Family Fun Center oval entrance sign",
       "Christmas tree with white star on top",
@@ -138,6 +143,7 @@ Gold, frankincense, myrrh… what a generous show!"`,
     name: "BETHLEHEM",
     fromLocation: "Indoor Christmas Tree (Sandy Harbor Inside)",
     toLocation: "Mini Golf Village (Sandy Harbor Outside)",
+    gps: "33°37'23\"N 78°57'26\"W",
     verse: `"The gifts are all gathered—now where do they go?
 To a LITTLE TOWN humble, where carols all flow.
 Step back OUTSIDE to a village so small,
@@ -146,7 +152,7 @@ Red, green, and yellow—where small balls roll through—
 'O Little Town' waited for me and for you!"`,
     scripture: "Micah 5:2",
     scriptureText: "But you, Bethlehem… out of you will come a ruler over Israel.",
-    hint: "Don't leave Sandy Harbor! Go back OUTSIDE to the mini golf course. Colorful tiny buildings.",
+    hint: "Stay close! Sometimes the next treasure is just steps away. What's colorful and fun right outside?",
     visualIdentifiers: [
       "Sandy Harbor Mini Golf oval sign",
       "Fisherman's Wharf themed buildings",
@@ -168,6 +174,7 @@ Red, green, and yellow—where small balls roll through—
     name: "THE ANGEL",
     fromLocation: "Mini Golf Village (Sandy Harbor)",
     toLocation: "Angel Tree Topper (Inside Sandy Mart)",
+    gps: "33°37'29\"N 78°57'29\"W",
     verse: `"Bethlehem's found—now hear the good word!
 A MESSENGER came with the best news e'er heard.
 Head to the store where the campers all shop,
@@ -176,7 +183,7 @@ Who's got wings spread wide, dressed in robes flowing white?
 She sang 'Do not fear!' on that glorious night!"`,
     scripture: "Luke 2:10",
     scriptureText: "The angel said, 'Do not be afraid. I bring you good news that will cause great joy!'",
-    hint: "Head to the camp store. Go INSIDE. Look at the very TOP of their Christmas tree.",
+    hint: "Campers need supplies, right? Look UP when you get there... messengers often appear at the highest point.",
     visualIdentifiers: [
       "Sandy Mart exterior sign (red/white)",
       "Starfish hanging off sign",
@@ -197,6 +204,7 @@ She sang 'Do not fear!' on that glorious night!"`,
     name: "THE INN",
     fromLocation: "Sandy Mart (Inside, at the Angel Tree)",
     toLocation: "Fireplace Pavilion (Near Front Entrance)",
+    gps: "33°37'41\"N 78°57'41\"W",
     verse: `"The angel announced it—now where will they stay?
 Most inns were too full and just turned them away.
 Go back to the place where you first said 'We're here!'
@@ -205,7 +213,7 @@ A SHELTER with fire and stockings hung tight—
 This inn has a room and it's glowing with light!"`,
     scripture: "Luke 2:7",
     scriptureText: "There was no guest room available for them.",
-    hint: "Think about where you FIRST drove into camp. Near that entrance, find the covered fireplace with stockings.",
+    hint: "Remember where your adventure at camp began? Return to the beginning... warmth and welcome await weary travelers.",
     visualIdentifiers: [
       "Covered pavilion with stone fireplace",
       "Red Christmas stockings on mantle",
@@ -227,15 +235,16 @@ This inn has a room and it's glowing with light!"`,
     name: "FULLNESS OF TIME",
     fromLocation: "Fireplace Pavilion (Near Front Entrance)",
     toLocation: "Clock Tower (Near Camptown / Sandy Mart)",
+    gps: "33°37'30\"N 78°57'28\"W",
     verse: `"The shelter is found—nearly done with your quest!
 One treasure remains, and it might be the best.
 Find what has HANDS but can't give you a wave,
 A face with no mouth, yet it's perfectly brave.
 WAIT—this one's got eyes! And it's rocking a bow!
-God's timing was perfect… the CLOCK let Him know!"`,
+When TIME was just right, God said 'Now is the show!'"`,
     scripture: "Galatians 4:4",
     scriptureText: "But when the set time had fully come, God sent His Son.",
-    hint: "Head back toward Camptown. The clock tower has a familiar face with sunglasses… and a big red Christmas bow!",
+    hint: "Head back toward where it all started. Something tall tells the time... and it has a friendly face you might recognize!",
     visualIdentifiers: [
       "Tall clock tower structure",
       "Clock face with Sandy starfish wearing sunglasses",

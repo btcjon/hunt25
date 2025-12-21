@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useGameStore } from '@/lib/game/state';
 import { CLUES } from '@/lib/game/clues';
 import { speak } from '@/lib/voice/elevenlabs';
-import { speakFallback } from '@/lib/voice/webSpeech';
+// Browser fallback removed - ElevenLabs only
 import Starfield from '@/components/game/Starfield';
 import ReplayAudio from '@/components/game/ReplayAudio';
 
@@ -21,16 +21,16 @@ export default function CelebrationPage({ params }: PageProps) {
 
   const clue = CLUES[stopNumber - 1];
 
-  // Celebration message
+  // Celebration message with Christmas story meaning
   const celebrationMessages = [
-    "YES! We found it! The Wise Men would be SO proud of our family!",
-    "AMAZING! We're doing incredible! Granddaddy is cheering for everyone!",
-    "WOW! We found it together! The Christmas story continues!",
-    "FANTASTIC! Another treasure collected! Everyone say hooray!",
-    "INCREDIBLE! We're all star seekers for real!",
-    "HOORAY! The journey continues! We're almost there together!",
-    "WONDERFUL! We found it as a group! What amazing seekers!",
-    "PERFECT! Everyone together, and right on time!",
+    "YES! You found THE STAR! Just like the Wise Men, when we look for God's signs, He shows us the way!",
+    "AMAZING! THE JOURNEY has begun! The Wise Men traveled far because their faith moved them to ACTION. Keep moving, seekers!",
+    "WOW! MARY AND JOSEPH! They trusted God's plan even when it seemed impossible. That's what faith looks like!",
+    "FANTASTIC! THE GIFTS! We give gifts at Christmas because God gave us the GREATEST gift - His Son!",
+    "INCREDIBLE! BETHLEHEM! God chose a tiny, humble town. He doesn't need big places to do BIG things!",
+    "HOORAY! THE ANGEL! 'Do not be afraid!' The angels brought GOOD NEWS of great joy for ALL people!",
+    "WONDERFUL! THE INN! The world had no room, but God ALWAYS makes a way for those who seek Him!",
+    "PERFECT! FULLNESS OF TIME! At just the right moment, God sent Jesus. His timing is ALWAYS perfect!",
   ];
 
   const message = celebrationMessages[stopNumber - 1] || "We found it!";
@@ -39,11 +39,9 @@ export default function CelebrationPage({ params }: PageProps) {
     setSpeaking(true);
     try {
       const fullMessage = `${message} You found ${clue.name}! ${clue.scriptureText}`;
-      try {
-        await speak(fullMessage);
-      } catch {
-        await speakFallback(fullMessage);
-      }
+      await speak(fullMessage);
+    } catch (error) {
+      console.error('ElevenLabs failed:', error);
     } finally {
       setSpeaking(false);
     }
@@ -62,65 +60,65 @@ export default function CelebrationPage({ params }: PageProps) {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden bg-midnight">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden bg-midnight">
       <Starfield />
       <StarDust />
 
       <main className="relative z-10 text-center max-w-lg w-full">
         {/* Big Symbol with Glow */}
-        <div className="relative mb-8 group">
+        <div className="relative mb-6 sm:mb-8 group">
           <div className="absolute inset-0 bg-star-gold/20 rounded-full blur-3xl scale-150 animate-pulse"></div>
-          <div className="relative z-10 text-[120px] drop-shadow-[0_0_30px_rgba(245,209,126,0.8)] animate-bounce duration-1000">
+          <div className="relative z-10 text-[80px] sm:text-[120px] drop-shadow-[0_0_30px_rgba(245,209,126,0.8)] animate-bounce duration-1000">
             {clue.symbol}
           </div>
         </div>
 
         {/* Success Message */}
-        <div className="mb-8">
-          <h1 className="text-star-gold text-xs tracking-[0.4em] uppercase font-sans mb-2 drop-shadow-sm">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-star-gold text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase font-sans mb-2 drop-shadow-sm">
             Treasure Found
           </h1>
-          <h2 className="text-5xl font-serif text-white text-glow mb-2">
+          <h2 className="text-3xl sm:text-5xl font-serif text-white text-glow mb-3">
             {clue.name}
           </h2>
-          <p className="text-white/60 text-sm tracking-widest uppercase font-sans">
-            Success, Seeker!
+          <p className="text-white/80 text-sm sm:text-base font-sans leading-relaxed px-4">
+            {message}
           </p>
         </div>
 
         {/* Scripture Card */}
-        <div className="glass-indigo rounded-3xl p-8 mb-10 max-w-md mx-auto border-white/5 shadow-glass animate-in zoom-in duration-700">
-          <p className="text-xl text-white italic font-scripture leading-relaxed">
+        <div className="glass-indigo rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-8 sm:mb-10 max-w-md mx-auto border-white/5 shadow-glass animate-in zoom-in duration-700">
+          <p className="text-base sm:text-xl text-white italic font-scripture leading-relaxed">
             &ldquo;{clue.scriptureText}&rdquo;
           </p>
-          <div className="h-px w-12 bg-star-gold/30 mx-auto my-6"></div>
-          <p className="text-star-gold text-xs tracking-widest uppercase font-sans">
+          <div className="h-px w-12 bg-star-gold/30 mx-auto my-4 sm:my-6"></div>
+          <p className="text-star-gold text-[10px] sm:text-xs tracking-widest uppercase font-sans">
             — {clue.scripture}
           </p>
         </div>
 
         {/* Collected Inventory Progress */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10 opacity-80 scale-90">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 opacity-80 scale-90">
           {collectedSymbols.map((sym, i) => (
-            <span key={i} className="text-3xl drop-shadow-[0_0_10px_rgba(245,209,126,0.3)]">{sym}</span>
+            <span key={i} className="text-2xl sm:text-3xl drop-shadow-[0_0_10px_rgba(245,209,126,0.3)]">{sym}</span>
           ))}
         </div>
 
         {/* Next Button */}
         <button
           onClick={handleNext}
-          className="premium-button w-full max-w-xs py-6 text-xl tracking-widest uppercase"
+          className="premium-button w-full max-w-xs py-4 sm:py-6 text-base sm:text-xl tracking-widest uppercase"
         >
           {currentStop > 8 ? 'Final Destination' : 'Follow the Star'}
         </button>
 
         {/* Replay Audio */}
-        <div className="flex justify-center mt-6 mb-4">
-          <ReplayAudio onReplay={speakCelebration} isPlaying={isSpeaking} />
+        <div className="flex justify-center mt-4 sm:mt-6 mb-4">
+          <ReplayAudio onReplay={speakCelebration} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
         </div>
 
         {/* Group Prompt */}
-        <p className="mt-4 text-white/40 text-xs font-sans tracking-widest uppercase italic">
+        <p className="mt-4 text-white/40 text-[10px] sm:text-xs font-sans tracking-widest uppercase italic">
           Granddaddy is proud of you!
         </p>
       </main>
