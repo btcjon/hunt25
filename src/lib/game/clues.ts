@@ -23,7 +23,7 @@ export const CLUES: Clue[] = [
     fromLocation: "Home Base",
     toLocation: "Giant Light Tree + Yellow Statue (Camptown Center)",
     gps: "33.6246728, -78.9573327",
-    verse: `"Wise Men looked up and they knew where to go—
+    verse: `"Wise Men looked up and they knew where to go--
 A STAR in the sky put on quite a show!
 Find the tallest bright tower of lights in this place,
 With a five-pointed friend wearing shades on her face.
@@ -53,11 +53,11 @@ Onward you go now - no procrastination!"`,
     fromLocation: "Light Tree + Sandy Statue (Camptown)",
     toLocation: "Observation Deck (Beachfront)",
     gps: "33.6221122, -78.9562330",
-    verse: `"The star's shining bright—now your JOURNEY begins!
+    verse: `"The star's shining bright--now your JOURNEY begins!
 The Wise Men set off through the thick and the thins.
 Find the lookout that watches where water meets land,
 Near a shop selling coffee and cold treats so grand.
-They traveled by night with their eyes on the sky—
+They traveled by night with their eyes on the sky--
 Ascend to the summit and see waves rolling by!"`,
     scripture: "Matthew 2:1",
     scriptureText: "Magi from the east came to Jerusalem.",
@@ -84,11 +84,11 @@ Ascend to the summit and see waves rolling by!"`,
     fromLocation: "Observation Deck (Beachfront)",
     toLocation: "Twin Painted Chairs (Nature Area by Magnolia Lake)",
     gps: "33.6238099, -78.9589867",
-    verse: `"The journey continues—now into the trees!
+    verse: `"The journey continues--now into the trees!
 Where dogs run and play and discoveries tease.
 By the lake where the turtles and nature folk dwell,
 TWO SEATS sit together with stories to tell.
-Watching over the water and painted up bright—
+Watching over the water and painted up bright--
 Like Mary and Joseph on that first holy night!"`,
     scripture: "Matthew 1:24",
     scriptureText: "Joseph did what the angel of the Lord commanded him.",
@@ -114,11 +114,11 @@ Like Mary and Joseph on that first holy night!"`,
     fromLocation: "Twin Chairs (Nature Area / Magnolia Lake)",
     toLocation: "Indoor Christmas Tree (Inside Sandy Harbor Family Fun Center)",
     gps: "33.6228584, -78.9575188",
-    verse: `"Congratulations, you are on the right path—now treasures await!
-The Wise Men brought GIFTS—and they couldn't be late.
+    verse: `"Congratulations, you are on the right path--now treasures await!
+The Wise Men brought GIFTS--and they couldn't be late.
 Head to where families all play,
 Step INSIDE and find what you seek right away.
-A tree decked in lights with wrapped boxes below—
+A tree decked in lights with wrapped boxes below--
 Gold, frankincense, myrrh... what a generous show!"`,
     scripture: "Matthew 2:11",
     scriptureText: "They presented Him with gifts of gold, frankincense, and myrrh.",
@@ -144,14 +144,14 @@ Gold, frankincense, myrrh... what a generous show!"`,
     fromLocation: "Indoor Christmas Tree (Sandy Harbor Inside)",
     toLocation: "Mini Golf Village (Sandy Harbor Outside)",
     gps: "33.6230393, -78.9576150",
-    verse: `"The gifts are all gathered—now where do they go?
+    verse: `"The gifts are all gathered--now where do they go?
 To a LITTLE TOWN humble, where carols all flow.
 Nearby is a village so small,
 With tiny bright buildings that stand proud and tall.
-Red, green, and yellow—where small orbs roll through—
+Red, green, and yellow--where small orbs roll through--
 'O Little Town' waited for me and for you!"`,
     scripture: "Micah 5:2",
-    scriptureText: "But you, Bethlehem… out of you will come a ruler over Israel.",
+    scriptureText: "But you, Bethlehem... out of you will come a ruler over Israel.",
     hint: "Stay close! Sometimes the next treasure is just steps away. What's colorful and fun right outside?",
     visualIdentifiers: [
       "Sandy Harbor Mini Golf oval sign",
@@ -175,7 +175,7 @@ Red, green, and yellow—where small orbs roll through—
     fromLocation: "Mini Golf Village (Sandy Harbor)",
     toLocation: "Angel Tree Topper (Inside Sandy Mart)",
     gps: "33.6248241, -78.9581696",
-    verse: `"Bethlehem's found—now hear the good word!
+    verse: `"Bethlehem's found--now hear the good word!
 A MESSENGER came with the best news e'er heard.
 A mercantile along the way is your next stop,
 Inside look around from floor to tippy-top!
@@ -205,11 +205,11 @@ She sang 'Do not fear!' on that glorious night!"`,
     fromLocation: "Sandy Mart (Inside, at the Angel Tree)",
     toLocation: "Fireplace Pavilion (Near Front Entrance)",
     gps: "33.6281675, -78.9615545",
-    verse: `"The angel announced it—now where will they stay?
+    verse: `"The angel announced it--now where will they stay?
 Most inns were too full and just turned them away.
 Go back to the place where you first said 'We're here!'
 Near the gates that you entered to start this whole year.
-A SHELTER with fire and stockings hung tight—
+A SHELTER with fire and stockings hung tight--
 This inn has a room and it's glowing with light!"`,
     scripture: "Luke 2:7",
     scriptureText: "There was no guest room available for them.",
@@ -236,11 +236,11 @@ This inn has a room and it's glowing with light!"`,
     fromLocation: "Fireplace Pavilion (Near Front Entrance)",
     toLocation: "Clock Tower (Near Camptown / Sandy Mart)",
     gps: "33.6252934, -78.9578900",
-    verse: `"The shelter is found—nearly done with your quest!
+    verse: `"The shelter is found--nearly done with your quest!
 One treasure remains, and it might be the best.
 Find what has HANDS but can't give you a wave,
 A face with no mouth, yet it's perfectly brave.
-WAIT—this one's got eyes! And it's rocking a bow!
+WAIT--this one's got eyes! And it's rocking a bow!
 God's timing was perfect... He always knows!"`,
     scripture: "Galatians 4:4",
     scriptureText: "But when the set time had fully come, God sent His Son.",
@@ -265,18 +265,19 @@ export const FINALE = {
   symbol: "👶",
   name: "BABY JESUS",
   fromLocation: "Clock Tower (Camptown)",
-  toLocation: "HOME BASE — The Greatest Treasure!",
+  toLocation: "HOME BASE -- The Greatest Treasure!",
+  gps: "33.6184374, -78.9608870",
   verse: `"You followed the STAR when it first caught your eye,
 You made the great JOURNEY beneath the wide sky,
 Followed MARY and JOSEPH, patient and true,
 GIFTS and the LITTLE TOWN waiting for you,
 The ANGEL who sang and the INN with a light,
-The CLOCK, God's perfect timing that holy night—
+The CLOCK, God's perfect timing that holy night--
 
 But what was it all for? Why travel so far?
 Why follow the trail of that very first star?
 
-BACK TO HOME BASE—your quest almost done!
+BACK TO HOME BASE--your quest almost done!
 The answer is waiting: GOD'S ONLY SON!"`,
   scripture: "Luke 2:11",
   scriptureText: "Unto you is born this day in the city of David a Savior, who is Christ the Lord."

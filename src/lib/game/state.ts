@@ -41,6 +41,12 @@ export interface GameState {
   audioUnlocked: boolean;
   unlockAudio: () => void;
 
+  // Quest timer
+  questStartTime: number | null;
+  finaleCompletedTime: number | null;
+  recordQuestStart: () => void;
+  recordFinaleComplete: () => void;
+
   // Reset
   resetGame: () => void;
 }
@@ -57,6 +63,8 @@ const initialState = {
   clueStartTimes: {},
   chatHistory: [],
   audioUnlocked: false,
+  questStartTime: null as number | null,
+  finaleCompletedTime: null as number | null,
 };
 
 export const useGameStore = create<GameState>()(
@@ -103,6 +111,12 @@ export const useGameStore = create<GameState>()(
       clearChatHistory: () => set({ chatHistory: [] }),
 
       unlockAudio: () => set({ audioUnlocked: true }),
+
+      recordQuestStart: () => set((state) => ({
+        questStartTime: state.questStartTime || Date.now(),
+      })),
+
+      recordFinaleComplete: () => set({ finaleCompletedTime: Date.now() }),
 
       resetGame: () => set(initialState),
     }),

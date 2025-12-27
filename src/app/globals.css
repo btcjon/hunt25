@@ -3,12 +3,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050A18;
-  --foreground: #F8FAFC;
-  --star-gold: #F5D17E;
-  --star-gold-dark: #D4AF37;
-  --midnight: #050A18;
-  --indigo-deep: #1E293B;
+  --background: #FFFBEB;
+  --foreground: #1E293B;
+  --star-gold: #B8860B;
+  --star-gold-dark: #996515;
+  --midnight: #FFFBEB;
+  --indigo-deep: #FEF3C7;
   --font-crimson: 'Crimson Text', serif;
   --font-lora: 'Lora', serif;
   --font-inter: 'Inter', sans-serif;
@@ -26,8 +26,8 @@
   --font-scripture: var(--font-lora);
   --font-sans: var(--font-inter);
 
-  --shadow-gold: 0 0 20px rgba(245, 209, 126, 0.3);
-  --shadow-gold-intense: 0 0 40px rgba(245, 209, 126, 0.5);
+  --shadow-gold: 0 0 20px rgba(184, 134, 11, 0.2);
+  --shadow-gold-intense: 0 0 40px rgba(184, 134, 11, 0.35);
 }
 
 body {
@@ -43,16 +43,16 @@ body {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
   
-  .glass-indigo {
-    @apply bg-indigo-950/40 backdrop-blur-xl border border-white/10;
+  .glass-light {
+    @apply bg-white/90 backdrop-blur-md border border-amber-200/50 shadow-lg shadow-amber-900/5;
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(245, 209, 126, 0.4);
+    text-shadow: 0 0 10px rgba(184, 134, 11, 0.3);
   }
 
   .premium-button {
-    @apply bg-gradient-to-b from-star-gold to-star-gold-dark text-midnight font-bold shadow-gold hover:shadow-gold-intense active:scale-95 transition-all;
+    @apply bg-gradient-to-b from-amber-500 to-amber-600 text-white font-bold shadow-lg hover:shadow-xl active:scale-95 transition-all;
   }
 }
 
@@ -61,8 +61,17 @@ body {
   50% { opacity: 1; transform: scale(1.1); }
 }
 
+@keyframes ray-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
 .star {
   @apply absolute bg-white rounded-full;
   animation: twinkle var(--duration, 3s) infinite ease-in-out;
   opacity: var(--opacity, 0.5);
+}
+
+.ray {
+  animation: ray-pulse 3s infinite ease-in-out;
 }

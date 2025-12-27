@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useGameStore } from '@/lib/game/state';
 import { CLUES } from '@/lib/game/clues';
-import { speak, stopAudio } from '@/lib/voice/elevenlabs';
-// Browser fallback removed - ElevenLabs only
+import { speakClue, stopAudio, unlockAudioContext } from '@/lib/voice/elevenlabs';
 import Starfield from '@/components/game/Starfield';
-import ReplayAudio from '@/components/game/ReplayAudio';
-import KaraokeText from '@/components/game/KaraokeText';
+import ElapsedTimer from '@/components/game/ElapsedTimer';
 
 interface PageProps {
   params: Promise<{ stop: string }>;
@@ -29,6 +28,9 @@ export default function ClueScreen({ params }: PageProps) {
     collectSymbol,
     advanceToNextStop,
     recordClueStart,
+    audioUnlocked,
+    unlockAudio,
+    resetGame,
   } = useGameStore();
 
   const [granddaddyResponse, setGranddaddyResponse] = useState('');
@@ -39,23 +41,39 @@ export default function ClueScreen({ params }: PageProps) {
   const [overrideError, setOverrideError] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [lastUserMessage, setLastUserMessage] = useState('');
+  const [showTapPrompt, setShowTapPrompt] = useState(!audioUnlocked);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const clue = CLUES[stopNumber - 1];
 
-  // Speak the clue on load
-  const speakClue = useCallback(async () => {
+  // Play the clue audio (cached)
+  const playClueAudio = useCallback(async () => {
     if (!clue) return;
     setSpeaking(true);
     try {
-      await speak(clue.verse);
+      await speakClue(stopNumber, clue.verse, clue.scripture, clue.scriptureText);
     } catch (error) {
-      console.error('ElevenLabs failed:', error);
+      console.error('Clue audio failed:', error);
     } finally {
       setSpeaking(false);
     }
-  }, [clue, setSpeaking]);
+  }, [clue, stopNumber, setSpeaking]);
 
-  // No auto-play - user presses button to hear clue
+  // Handle tap to unlock audio AND start playing (required for mobile)
+  const handleTapToStart = useCallback(() => {
+    unlockAudioContext();
+    unlockAudio();
+    setShowTapPrompt(false);
+    // Start playing the clue
+    playClueAudio();
+  }, [unlockAudio, playClueAudio]);
+
+  // If already unlocked (returning to page), hide the prompt
+  useEffect(() => {
+    if (audioUnlocked) {
+      setShowTapPrompt(false);
+    }
+  }, [audioUnlocked]);
 
   // Record clue start time (only once per stop)
   useEffect(() => {
@@ -75,6 +93,19 @@ export default function ClueScreen({ params }: PageProps) {
     }
   };
 
+  // Reset game handler
+  const handleResetGame = () => {
+    setShowResetConfirm(true);
+  };
+
+  const confirmResetGame = () => {
+    stopAudio();
+    setSpeaking(false);
+    resetGame();
+    setShowResetConfirm(false);
+    router.push('/');
+  };
+
   // Send message to Granddaddy
   const handleUserMessage = async (message: string) => {
     setIsProcessing(true);
@@ -86,13 +117,12 @@ export default function ClueScreen({ params }: PageProps) {
       const response = "Great! Let me see - take a photo so I can check!";
       setGranddaddyResponse(response);
       addMessage('granddaddy', response);
-      await speakResponse(response);
       setShowCamera(true);
       setIsProcessing(false);
       return;
     }
 
-    // Chat with Granddaddy
+    // Chat with Granddaddy (text-only responses for speed)
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -107,10 +137,13 @@ export default function ClueScreen({ params }: PageProps) {
         }),
       });
 
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+
       const data = await res.json();
 
-      // Auto-unlock if description matched 2+ visual identifiers
-      // Don't speak - celebration page will handle audio
+      // Auto-unlock if description matched 3+ visual identifiers
       if (data.shouldUnlock) {
         setGranddaddyResponse(data.response);
         addMessage('granddaddy', data.response);
@@ -120,7 +153,6 @@ export default function ClueScreen({ params }: PageProps) {
 
       setGranddaddyResponse(data.response);
       addMessage('granddaddy', data.response);
-      await speakResponse(data.response);
 
       if (data.shouldTriggerPhoto) {
         setShowCamera(true);
@@ -129,32 +161,30 @@ export default function ClueScreen({ params }: PageProps) {
       console.error('Chat error:', error);
       const fallback = "Hmm, I couldn't quite hear that. Try again!";
       setGranddaddyResponse(fallback);
-      await speakResponse(fallback);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const speakResponse = async (text: string) => {
-    setSpeaking(true);
-    try {
-      await speak(text);
-    } catch (error) {
-      console.error('ElevenLabs failed:', error);
-    } finally {
-      setSpeaking(false);
-    }
-  };
+  // Chat responses are text-only (no TTS) for faster interaction
 
   const handleSuccess = () => {
     stopAudio(); // Stop any playing audio before navigating
     setSpeaking(false);
     collectSymbol(clue.symbol);
     advanceToNextStop();
-    router.push(`/quest/celebration/${stopNumber}`);
+    // Wait for next tick to ensure Zustand persistence completes
+    setTimeout(() => {
+      router.push(`/quest/celebration/${stopNumber}`);
+    }, 50);
   };
 
   const handlePhotoCapture = () => {
+    // Unlock audio on first user gesture (for iOS)
+    if (!audioUnlocked) {
+      unlockAudioContext();
+      unlockAudio();
+    }
     setShowCamera(true);
   };
 
@@ -166,27 +196,62 @@ export default function ClueScreen({ params }: PageProps) {
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden">
       <Starfield />
-      
+
+      {/* Tap to Start Overlay - Required for mobile audio */}
+      {showTapPrompt && !audioUnlocked && (
+        <div
+          className="fixed inset-0 z-50 bg-white/95 flex flex-col items-center justify-center cursor-pointer"
+          onClick={handleTapToStart}
+        >
+          <div className="text-center px-8">
+            <div className="text-6xl sm:text-8xl mb-6 animate-bounce">🔊</div>
+            <h2 className="text-2xl sm:text-3xl font-serif text-slate-800 mb-4">
+              Tap to Hear Clue {stopNumber}
+            </h2>
+            <p className="text-slate-500 text-sm sm:text-base mb-8">
+              {clue.name}
+            </p>
+            <div className="inline-block px-8 py-4 bg-amber-100 border-2 border-amber-600 rounded-full">
+              <span className="text-amber-700 font-bold tracking-widest uppercase text-sm">
+                Tap Anywhere
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header - Progress Stars */}
-      <header className="relative z-10 p-3 sm:p-6 glass-indigo border-b-0">
+      <header className="relative z-10 p-3 sm:p-6 glass-light border-b-0">
+        {/* Reset button - top left corner */}
+        <button
+          onClick={handleResetGame}
+          className="absolute top-3 left-3 sm:top-6 sm:left-6 text-slate-300 hover:text-slate-500 transition-colors p-2 text-lg sm:text-xl"
+          title="Start Over"
+        >
+          ⚙️
+        </button>
+
         <div className="max-w-md mx-auto">
+          <div className="flex justify-center mb-2">
+            <ElapsedTimer />
+          </div>
           <div className="flex justify-center gap-2 sm:gap-3 mb-2">
             {CLUES.map((_, i) => (
               <div
                 key={i}
                 className={`text-base sm:text-xl transition-all duration-500 ${
                   i < stopNumber - 1
-                    ? 'text-star-gold drop-shadow-[0_0_8px_rgba(245,209,126,0.6)]'
+                    ? 'text-amber-700 drop-shadow-[0_0_8px_rgba(245,209,126,0.6)]'
                     : i === stopNumber - 1
-                    ? 'text-white animate-pulse'
-                    : 'text-white/20'
+                    ? 'text-slate-800 animate-pulse'
+                    : 'text-slate-300'
                 }`}
               >
                 ★
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between text-[9px] sm:text-[10px] tracking-[0.2em] font-sans uppercase text-white/50">
+          <div className="flex items-center justify-between text-[9px] sm:text-[10px] tracking-[0.2em] font-sans uppercase text-slate-400">
             <span>Bennett Quest</span>
             <span>Stop {stopNumber}/8</span>
           </div>
@@ -197,44 +262,60 @@ export default function ClueScreen({ params }: PageProps) {
       <main className="relative z-10 flex-1 p-3 sm:p-6 overflow-y-auto scrollbar-hide">
         <div className="max-w-md mx-auto space-y-4 sm:space-y-6">
           
+          {/* Play Clue Button - Prominent */}
+          {!isSpeaking ? (
+            <button
+              onClick={playClueAudio}
+              className="w-full py-4 flex items-center justify-center gap-3 bg-amber-100 border-2 border-amber-400 text-amber-700 rounded-2xl hover:bg-amber-200 transition-all mb-4"
+            >
+              <span className="text-2xl">🔊</span>
+              <span className="tracking-widest uppercase text-sm font-bold">Play Clue</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                stopAudio();
+                setSpeaking(false);
+              }}
+              className="w-full py-4 flex items-center justify-center gap-3 bg-red-500/20 border-2 border-red-500/50 text-red-300 rounded-2xl hover:bg-red-500/30 transition-all mb-4"
+            >
+              <span className="text-2xl">⏹️</span>
+              <span className="tracking-widest uppercase text-sm font-bold">Stop Audio</span>
+            </button>
+          )}
+
           {/* Granddaddy Clue Card */}
-          <div className="glass-indigo rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-glass border-white/5">
+          <div className="glass-light rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-glass border-white/5">
             <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="relative w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0">
-                <div className={`absolute inset-0 bg-star-gold/20 rounded-full blur-xl ${isSpeaking ? 'animate-pulse scale-110' : ''}`}></div>
-                <div className={`relative z-10 w-full h-full rounded-full border-2 border-star-gold/30 overflow-hidden shadow-xl ${isSpeaking ? 'ring-2 ring-star-gold/30' : ''}`}>
-                  <img src="/granddaddy.png" alt="Granddaddy" className="w-full h-full object-cover" />
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                <div className={`absolute inset-0 bg-amber-100 rounded-full blur-xl ${isSpeaking ? 'animate-pulse scale-110' : ''}`}></div>
+                <div className={`relative z-10 w-full h-full rounded-full border-2 border-amber-200 overflow-hidden shadow-xl ${isSpeaking ? 'ring-2 ring-star-gold/30' : ''}`}>
+                  <Image src="/granddaddy.webp" alt="Granddaddy" fill className="object-cover" priority />
                 </div>
               </div>
               <div className="pt-1 sm:pt-2 flex-1">
-                <p className="text-star-gold text-[10px] sm:text-xs font-sans tracking-widest uppercase mb-1">Granddaddy</p>
-                <ReplayAudio onReplay={speakClue} isPlaying={isSpeaking} onStop={() => setSpeaking(false)} />
+                <p className="text-amber-700 text-[10px] sm:text-xs font-sans tracking-widest uppercase mb-1">Granddaddy Says:</p>
               </div>
             </div>
-            <p className="text-base sm:text-xl leading-relaxed font-serif italic text-glow">
-              &ldquo;<KaraokeText
-                text={clue.verse}
-                isPlaying={isSpeaking}
-                wordsPerMinute={130}
-                highlightClassName="text-white"
-              />&rdquo;
+            <p className="text-base sm:text-xl leading-relaxed font-serif italic text-glow text-slate-800">
+              &ldquo;{clue.verse}&rdquo;
             </p>
           </div>
 
           {/* Scripture Card */}
-          <div className="glass-indigo rounded-2xl p-6 border-l-2 border-star-gold/40 shadow-xl">
-            <p className="text-star-gold text-xs font-sans tracking-[0.2em] uppercase mb-3">The Word</p>
-            <p className="text-white/90 text-base italic font-scripture leading-relaxed">
+          <div className="glass-light rounded-2xl p-6 border-l-2 border-amber-300 shadow-xl">
+            <p className="text-amber-700 text-xs font-sans tracking-[0.2em] uppercase mb-3">The Word</p>
+            <p className="text-slate-700 text-base italic font-scripture leading-relaxed">
               &ldquo;{clue.scriptureText}&rdquo;
             </p>
-            <p className="text-white/40 text-xs mt-4 text-right font-sans tracking-widest uppercase">
+            <p className="text-slate-400 text-xs mt-4 text-right font-sans tracking-widest uppercase">
               — {clue.scripture}
             </p>
           </div>
 
           {/* User Message */}
           {lastUserMessage && (
-            <div className="glass-indigo rounded-2xl p-4 border border-blue-500/20 animate-in fade-in">
+            <div className="glass-light rounded-2xl p-4 border border-blue-500/20 animate-in fade-in">
               <p className="text-blue-300 text-sm italic">
                 You: &ldquo;{lastUserMessage}&rdquo;
               </p>
@@ -243,17 +324,19 @@ export default function ClueScreen({ params }: PageProps) {
 
           {/* Processing Indicator */}
           {isProcessing && (
-            <div className="glass-indigo rounded-2xl p-4 border border-star-gold/30 animate-pulse">
-              <p className="text-star-gold text-sm">Granddaddy is thinking...</p>
+            <div className="glass-light rounded-2xl p-4 border border-amber-200 animate-pulse">
+              <p className="text-amber-700 text-sm">Granddaddy is thinking...</p>
             </div>
           )}
 
           {/* Granddaddy Chat Response */}
           {granddaddyResponse && !isProcessing && (
-            <div className="glass-indigo rounded-2xl p-4 border border-star-gold/30 animate-in zoom-in-95">
+            <div className="glass-light rounded-2xl p-4 border border-amber-200 animate-in zoom-in-95">
               <div className="flex items-start gap-3">
-                <img src="/granddaddy.png" alt="Granddaddy" className="w-14 h-14 rounded-full object-cover flex-shrink-0 border border-star-gold/30" />
-                <p className="text-white/90 text-base leading-relaxed">
+                <div className="relative w-14 h-14 flex-shrink-0">
+                  <Image src="/granddaddy.webp" alt="Granddaddy" fill className="rounded-full object-cover border border-amber-200" />
+                </div>
+                <p className="text-slate-700 text-base leading-relaxed">
                   {granddaddyResponse}
                 </p>
               </div>
@@ -263,30 +346,8 @@ export default function ClueScreen({ params }: PageProps) {
       </main>
 
       {/* Footer Actions */}
-      <footer className="relative z-10 p-3 sm:p-6 pb-6 sm:pb-10 glass-indigo border-t-0 rounded-t-2xl sm:rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+      <footer className="relative z-10 p-3 sm:p-6 pb-6 sm:pb-10 glass-light border-t-0 rounded-t-2xl sm:rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
         <div className="max-w-md mx-auto space-y-3">
-          {/* Play/Stop Clue Audio Button */}
-          {!isSpeaking ? (
-            <button
-              onClick={speakClue}
-              className="w-full py-3 flex items-center justify-center gap-2 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl hover:bg-star-gold/30 transition-all"
-            >
-              <span className="text-lg">🔊</span>
-              <span className="tracking-widest uppercase text-xs font-bold">Play Clue</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                stopAudio();
-                setSpeaking(false);
-              }}
-              className="w-full py-3 flex items-center justify-center gap-2 bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl hover:bg-red-500/30 transition-all"
-            >
-              <span className="text-lg">⏹️</span>
-              <span className="tracking-widest uppercase text-xs font-bold">Stop Audio</span>
-            </button>
-          )}
-
           {/* Text Chat Input */}
           <form
             onSubmit={(e) => {
@@ -304,12 +365,12 @@ export default function ClueScreen({ params }: PageProps) {
               onChange={(e) => setTextInput(e.target.value)}
               placeholder="Ask Granddaddy..."
               disabled={isProcessing}
-              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-star-gold/50 disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-amber-50 border border-amber-200/60 rounded-xl text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-amber-400 disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={!textInput.trim() || isProcessing}
-              className="px-4 py-3 bg-star-gold/20 border border-star-gold/40 text-star-gold rounded-xl disabled:opacity-50 active:scale-95 transition-all"
+              className="px-4 py-3 bg-amber-100 border border-amber-300 text-amber-700 rounded-xl disabled:opacity-50 active:scale-95 transition-all"
             >
               ➤
             </button>
@@ -329,7 +390,7 @@ export default function ClueScreen({ params }: PageProps) {
         {/* Parent Override - Small discrete button */}
         <button
           onClick={() => setShowOverrideModal(true)}
-          className="w-full mt-3 py-2 text-[10px] font-sans tracking-[0.2em] uppercase text-white/20 hover:text-white/40 transition-colors"
+          className="w-full mt-3 py-2 text-[10px] font-sans tracking-[0.2em] uppercase text-slate-300 hover:text-slate-400 transition-colors"
         >
           Parent Override
         </button>
@@ -341,10 +402,6 @@ export default function ClueScreen({ params }: PageProps) {
           stopNumber={stopNumber}
           onClose={() => setShowCamera(false)}
           onSuccess={handleSuccess}
-          onPartial={(response) => {
-            setGranddaddyResponse(response);
-            speakResponse(response);
-          }}
           targetGPS={clue.gps}
         />
       )}
@@ -352,10 +409,10 @@ export default function ClueScreen({ params }: PageProps) {
       {/* Parent Override Modal */}
       {showOverrideModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={() => setShowOverrideModal(false)}></div>
-          <div className="relative z-10 glass-indigo border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
-            <h3 className="text-white text-lg font-serif text-center mb-4">Parent Override</h3>
-            <p className="text-white/50 text-xs text-center mb-4">Enter code to skip to next clue</p>
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-md" onClick={() => setShowOverrideModal(false)}></div>
+          <div className="relative z-10 glass-light border-amber-200/40 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
+            <h3 className="text-slate-800 text-lg font-serif text-center mb-4">Parent Override</h3>
+            <p className="text-slate-400 text-xs text-center mb-4">Enter code to skip to next clue</p>
             <input
               type="password"
               inputMode="numeric"
@@ -364,7 +421,7 @@ export default function ClueScreen({ params }: PageProps) {
               value={overridePassword}
               onChange={(e) => setOverridePassword(e.target.value)}
               placeholder="Enter 4-digit code"
-              className={`w-full px-4 py-3 bg-white/10 border ${overrideError ? 'border-red-500' : 'border-white/20'} rounded-xl text-white text-center text-xl tracking-[0.5em] placeholder:text-white/30 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-star-gold/50`}
+              className={`w-full px-4 py-3 bg-amber-50 border ${overrideError ? 'border-red-500' : 'border-amber-200/60'} rounded-xl text-slate-800 text-center text-xl tracking-[0.5em] placeholder:text-slate-300 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-amber-400`}
               autoFocus
             />
             {overrideError && (
@@ -377,15 +434,40 @@ export default function ClueScreen({ params }: PageProps) {
                   setOverridePassword('');
                   setOverrideError(false);
                 }}
-                className="flex-1 py-3 text-xs tracking-widest uppercase text-white/50 border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+                className="flex-1 py-3 text-xs tracking-widest uppercase text-slate-400 border border-amber-200/40 rounded-xl hover:bg-amber-50/50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleParentOverride}
-                className="flex-1 py-3 text-xs tracking-widest uppercase bg-star-gold text-midnight font-bold rounded-xl hover:bg-star-gold/90 transition-colors"
+                className="flex-1 py-3 text-xs tracking-widest uppercase bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-500 transition-colors"
               >
                 Unlock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Confirmation Modal */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-md" onClick={() => setShowResetConfirm(false)}></div>
+          <div className="relative z-10 glass-light border-amber-200/40 rounded-2xl w-full max-w-xs p-6 shadow-2xl">
+            <h3 className="text-slate-800 text-lg font-serif text-center mb-4">Start Over?</h3>
+            <p className="text-slate-400 text-sm text-center mb-6">All progress will be lost.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="flex-1 py-3 text-xs tracking-widest uppercase text-slate-400 border border-amber-200/40 rounded-xl hover:bg-amber-50/50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmResetGame}
+                className="flex-1 py-3 text-xs tracking-widest uppercase bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
+              >
+                Reset
               </button>
             </div>
           </div>
@@ -396,18 +478,16 @@ export default function ClueScreen({ params }: PageProps) {
   );
 }
 
-// Updated Camera Modal Component with GPS verification
+// Camera Modal Component with GPS + Photo verification
 function CameraModal({
   stopNumber,
   onClose,
   onSuccess,
-  onPartial,
   targetGPS,
 }: {
   stopNumber: number;
   onClose: () => void;
   onSuccess: () => void;
-  onPartial: (response: string) => void;
   targetGPS?: string;
 }) {
   const [photo, setPhoto] = useState<string | null>(null);
@@ -415,12 +495,21 @@ function CameraModal({
   const [isCheckingGPS, setIsCheckingGPS] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'checking' | 'success' | 'far' | 'error'>('idle');
   const [gpsDistance, setGpsDistance] = useState<number | null>(null);
+  const [gpsAttempts, setGpsAttempts] = useState(0);
   const [error, setError] = useState('');
+
+  const MAX_GPS_ATTEMPTS = 5;
 
   // GPS verification
   const checkGPS = async () => {
     if (!targetGPS) {
       setError('No GPS coordinates for this stop');
+      return;
+    }
+
+    // Check attempts
+    if (gpsAttempts >= MAX_GPS_ATTEMPTS) {
+      setError('GPS attempts exhausted. Use photo verification instead.');
       return;
     }
 
@@ -434,12 +523,13 @@ function CameraModal({
     setIsCheckingGPS(true);
     setGpsStatus('checking');
     setError('');
+    setGpsAttempts(prev => prev + 1);
 
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 15000, // Longer timeout for mobile
+          timeout: 15000,
           maximumAge: 0,
         });
       });
@@ -459,12 +549,14 @@ function CameraModal({
         setTimeout(() => onSuccess(), 1000);
       } else {
         setGpsStatus('far');
+        if (gpsAttempts >= MAX_GPS_ATTEMPTS) {
+          setError('GPS attempts exhausted. Use photo verification instead.');
+        }
       }
     } catch (err) {
       console.error('GPS error:', err);
       setGpsStatus('error');
 
-      // Provide specific error messages
       const geoError = err as GeolocationPositionError;
       if (geoError.code === 1) {
         setError('Location permission denied. Go to Settings → Safari → Location → Allow');
@@ -493,6 +585,7 @@ function CameraModal({
     reader.readAsDataURL(file);
   };
 
+  // Photo verification - uses AI to check if correct location
   const verifyPhoto = async (base64: string) => {
     setIsVerifying(true);
     setError('');
@@ -511,16 +604,14 @@ function CameraModal({
 
       if (data.isCorrect) {
         onSuccess();
-      } else if (data.confidence >= 50) {
-        onPartial(data.granddaddyResponse + (data.followUpQuestion ? ` ${data.followUpQuestion}` : ''));
-        onClose();
       } else {
-        onPartial(data.granddaddyResponse);
-        onClose();
+        setError(data.granddaddyResponse || "That doesn't look quite right. Try again!");
+        setPhoto(null); // Clear photo to allow retry
       }
     } catch (err) {
-      console.error('Verification error:', err);
-      setError('Could not verify photo. Try again!');
+      console.error('Photo verification error:', err);
+      setError('Verification failed. Try again or use GPS.');
+      setPhoto(null);
     } finally {
       setIsVerifying(false);
     }
@@ -528,33 +619,46 @@ function CameraModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-midnight/90 backdrop-blur-md" onClick={onClose}></div>
-      <div className="relative z-10 glass-indigo border-white/10 rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-hidden">
+      <div className="absolute inset-0 bg-white/90 backdrop-blur-md" onClick={onClose}></div>
+      <div className="relative z-10 glass-light border-amber-200/40 rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-hidden">
         {/* Decorative corner stars */}
-        <div className="absolute top-2 left-2 text-star-gold/20 text-xs">★</div>
-        <div className="absolute top-2 right-2 text-star-gold/20 text-xs">★</div>
+        <div className="absolute top-2 left-2 text-amber-100 text-xs">★</div>
+        <div className="absolute top-2 right-2 text-amber-100 text-xs">★</div>
 
-        <h2 className="text-xl font-serif text-white text-center mb-6 tracking-wide">Prove Your Finding</h2>
+        <h2 className="text-xl font-serif text-slate-800 text-center mb-6 tracking-wide">Prove Your Finding</h2>
+
+        {/* GPS Attempts Counter - Always visible */}
+        {targetGPS && (
+          <div className="mb-4 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-full">
+              <span className="text-lg">📍</span>
+              <span className="text-slate-800 font-bold text-lg">{MAX_GPS_ATTEMPTS - gpsAttempts}</span>
+              <span className="text-slate-500 text-sm">GPS tries left</span>
+            </div>
+          </div>
+        )}
 
         {/* GPS Verification - Primary method */}
         {targetGPS && (
           <div className="mb-6">
             <button
               onClick={checkGPS}
-              disabled={isCheckingGPS || gpsStatus === 'success'}
+              disabled={isCheckingGPS || gpsStatus === 'success' || gpsAttempts >= MAX_GPS_ATTEMPTS}
               className={`w-full py-4 rounded-2xl border-2 transition-all ${
                 gpsStatus === 'success'
                   ? 'bg-green-500/30 border-green-500/60 text-green-300'
+                  : gpsAttempts >= MAX_GPS_ATTEMPTS
+                  ? 'bg-amber-50 border-amber-200/60 text-slate-400 cursor-not-allowed'
                   : gpsStatus === 'far'
                   ? 'bg-orange-500/30 border-orange-500/60 text-orange-300'
                   : gpsStatus === 'error'
                   ? 'bg-red-500/30 border-red-500/60 text-red-300'
-                  : 'bg-star-gold/20 border-star-gold/50 text-star-gold hover:bg-star-gold/30'
+                  : 'bg-amber-100 border-amber-400 text-amber-700 hover:bg-amber-200'
               }`}
             >
               {isCheckingGPS ? (
                 <div className="flex items-center justify-center gap-3">
-                  <div className="w-5 h-5 border-2 border-star-gold border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
                   <span className="text-sm tracking-widest uppercase">Checking Location...</span>
                 </div>
               ) : gpsStatus === 'success' ? (
@@ -562,10 +666,15 @@ function CameraModal({
                   <span className="text-2xl">✓</span>
                   <span className="text-sm tracking-widest uppercase">You found it!</span>
                 </div>
+              ) : gpsAttempts >= MAX_GPS_ATTEMPTS ? (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-sm tracking-widest uppercase">No GPS Tries Left</span>
+                  <span className="text-xs opacity-70">Take a photo instead!</span>
+                </div>
               ) : gpsStatus === 'far' ? (
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-sm tracking-widest uppercase">Not quite! {gpsDistance}m away</span>
-                  <span className="text-xs opacity-70">Tap to try again</span>
+                  <span className="text-xs opacity-70">Try again or move closer</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3">
@@ -574,20 +683,19 @@ function CameraModal({
                 </div>
               )}
             </button>
-            <p className="text-white/30 text-[10px] text-center mt-2 tracking-wider">Must be within 15 meters</p>
           </div>
         )}
 
         {/* Photo Verification - Fallback */}
-        <div className="border-t border-white/10 pt-4">
-          <p className="text-white/40 text-[10px] text-center mb-3 tracking-widest uppercase">Or use photo</p>
+        <div className="border-t border-amber-200/40 pt-4">
+          <p className="text-slate-400 text-[10px] text-center mb-3 tracking-widest uppercase">Or use photo</p>
           {photo ? (
-            <div className="relative rounded-2xl overflow-hidden border-2 border-star-gold/30">
+            <div className="relative rounded-2xl overflow-hidden border-2 border-amber-200">
               <img src={photo} alt="Captured" className="w-full aspect-[4/3] object-cover" />
               {isVerifying && (
-                <div className="absolute inset-0 bg-midnight/60 backdrop-blur-sm flex flex-col items-center justify-center">
-                  <div className="w-12 h-12 border-4 border-star-gold border-t-transparent rounded-full animate-spin mb-4"></div>
-                  <div className="text-star-gold text-xs tracking-widest uppercase font-bold">Verifying...</div>
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-amber-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="text-amber-700 text-xs tracking-widest uppercase font-bold">Verifying...</div>
                 </div>
               )}
             </div>
@@ -600,9 +708,9 @@ function CameraModal({
                 onChange={handleCapture}
                 className="hidden"
               />
-              <div className="py-3 px-4 rounded-xl border border-white/20 bg-white/5 flex items-center justify-center gap-2 hover:bg-white/10 transition-colors">
+              <div className="py-3 px-4 rounded-xl border border-amber-200/60 bg-amber-50/50 flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors">
                 <span className="text-xl">📷</span>
-                <span className="text-white/60 text-xs tracking-widest uppercase">Take Photo</span>
+                <span className="text-slate-500 text-xs tracking-widest uppercase">Take Photo</span>
               </div>
             </label>
           )}
@@ -614,7 +722,7 @@ function CameraModal({
 
         <button
           onClick={onClose}
-          className="w-full mt-6 py-4 text-xs tracking-[0.3em] uppercase text-white/40 font-bold hover:text-white transition-colors"
+          className="w-full mt-6 py-4 text-xs tracking-[0.3em] uppercase text-slate-400 font-bold hover:text-slate-800 transition-colors"
         >
           Cancel
         </button>

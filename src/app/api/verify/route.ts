@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       referenceImages: referenceImages || [],
     });
 
-    // Add follow-up question for partial matches
-    if (result.confidence >= 50 && result.confidence < 80) {
+    // Add follow-up question only for low-confidence rejections
+    if (!result.isCorrect && result.confidence >= 30 && result.confidence < 60) {
       const followUpQuestion = getFollowUpQuestion(stopNumber);
       return NextResponse.json({
         ...result,

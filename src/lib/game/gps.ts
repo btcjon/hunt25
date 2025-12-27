@@ -68,7 +68,7 @@ function toRad(deg: number): number {
 }
 
 // Verification radius in meters
-export const GPS_RADIUS_METERS = 15;
+export const GPS_RADIUS_METERS = 25;
 
 // Check if user is within radius of target location
 export function isWithinRadius(

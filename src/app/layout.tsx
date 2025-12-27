@@ -40,6 +40,9 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="dns-prefetch" href="https://api.elevenlabs.io" />
+        <link rel="dns-prefetch" href="https://api.anthropic.com" />
+        <link rel="preconnect" href="https://api.elevenlabs.io" crossOrigin="anonymous" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

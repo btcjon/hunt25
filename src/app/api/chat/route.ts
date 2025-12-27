@@ -3,7 +3,29 @@ import { chatWithGranddaddy } from '@/lib/ai/claude';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Get raw text and fix Netlify's incorrect escaping
+    let rawBody = await request.text();
+
+    // Netlify Edge Functions sometimes incorrectly escape special chars
+    // Fix common escape sequences that aren't valid JSON
+    rawBody = rawBody.replace(/\\!/g, '!');
+    rawBody = rawBody.replace(/\\'/g, "'");
+    rawBody = rawBody.replace(/\\@/g, '@');
+    rawBody = rawBody.replace(/\\#/g, '#');
+    rawBody = rawBody.replace(/\\$/g, '$');
+    rawBody = rawBody.replace(/\\%/g, '%');
+    rawBody = rawBody.replace(/\\&/g, '&');
+    rawBody = rawBody.replace(/\\\?/g, '?');
+
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request', raw: rawBody.substring(0, 200) },
+        { status: 400 }
+      );
+    }
     const { message, currentStop, collectedSymbols, hintsUsed, teamName, chatHistory } = body;
 
     if (!message || !currentStop) {
@@ -24,9 +46,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Chat API error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Chat API error:', errorMessage, error);
     return NextResponse.json(
-      { error: 'Failed to get response from Granddaddy' },
+      { error: 'Failed to get response from Granddaddy', details: errorMessage },
       { status: 500 }
     );
   }

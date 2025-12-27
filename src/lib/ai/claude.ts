@@ -1,14 +1,10 @@
-// Claude AI Client for Chat and Vision
-import Anthropic from '@anthropic-ai/sdk';
+// AI Client for Chat and Vision - Routes through CLIProxyAPI
 import { getGranddaddySystemPrompt, getVerificationSystemPrompt } from './granddaddy';
 import { CLUES } from '../game/clues';
 
-// Initialize Anthropic client (server-side only)
-function getClient(): Anthropic {
-  return new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
-}
+// CLIProxyAPI via HTTPS (Gemini respects system prompts)
+const PROXY_URL = 'https://llm-proxy.genr8ive.ai/v1/chat/completions';
+const MODEL = 'gemini-2.5-flash';
 
 interface ChatOptions {
   message: string;
@@ -30,8 +26,6 @@ interface ChatResponse {
 export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResponse> {
   const { message, currentStop, collectedSymbols, hintsUsed, teamName, chatHistory = [] } = options;
 
-  const client = getClient();
-
   const systemPrompt = getGranddaddySystemPrompt({
     currentStop,
     collectedSymbols,
@@ -39,27 +33,33 @@ export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResp
     teamName,
   });
 
-  // Convert chat history to Anthropic format
-  const messages: Anthropic.MessageParam[] = chatHistory.map((msg) => ({
-    role: msg.role === 'user' ? 'user' : 'assistant',
-    content: msg.content,
-  }));
+  // Build messages array
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...chatHistory.map((msg) => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content,
+    })),
+    { role: 'user', content: message },
+  ];
 
-  // Add the current message
-  messages.push({
-    role: 'user',
-    content: message,
+  const response = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 200,
+      messages,
+    }),
   });
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 200, // Keep responses short for TTS but allow room for fun answers
-    system: systemPrompt,
-    messages,
-  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API ${response.status}: ${errorText.substring(0, 100)}`);
+  }
 
-  const textContent = response.content.find((c) => c.type === 'text');
-  let responseText = textContent?.type === 'text' ? textContent.text : "I couldn't quite understand that. Can you try again?";
+  const data = await response.json();
+  let responseText = data.choices?.[0]?.message?.content || "I couldn't quite understand that. Can you try again?";
 
   // Parse match count from response (format: <!--MATCH:N-->)
   let matchCount = 0;
@@ -67,7 +67,6 @@ export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResp
   const matchResult = responseText.match(matchRegex);
   if (matchResult) {
     matchCount = parseInt(matchResult[1], 10);
-    // Remove the match tag from visible response
     responseText = responseText.replace(matchRegex, '').trim();
   }
 
@@ -86,9 +85,9 @@ export async function chatWithGranddaddy(options: ChatOptions): Promise<ChatResp
 }
 
 interface VerifyPhotoOptions {
-  photo: string; // Base64 encoded image
+  photo: string;
   stopNumber: number;
-  referenceImages?: string[]; // Base64 encoded reference images
+  referenceImages?: string[];
 }
 
 interface VerificationResult {
@@ -98,79 +97,67 @@ interface VerificationResult {
   granddaddyResponse: string;
 }
 
-// Verify photo with Claude Vision
+// Verify photo with Vision model
 export async function verifyPhoto(options: VerifyPhotoOptions): Promise<VerificationResult> {
   const { photo, stopNumber, referenceImages = [] } = options;
 
-  const client = getClient();
   const systemPrompt = getVerificationSystemPrompt(stopNumber);
 
-  // Build content array with reference images + kid's photo
-  const content: Anthropic.ContentBlockParam[] = [];
+  // Build content with images
+  const contentParts: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
 
-  // Add reference images if provided
   for (let i = 0; i < referenceImages.length; i++) {
-    content.push({
-      type: 'text',
-      text: `Reference image ${i + 1} for Stop ${stopNumber}:`,
-    });
-    content.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: 'image/jpeg',
-        data: referenceImages[i],
-      },
+    contentParts.push({ type: 'text', text: `Reference image ${i + 1} for Stop ${stopNumber}:` });
+    contentParts.push({
+      type: 'image_url',
+      image_url: { url: `data:image/jpeg;base64,${referenceImages[i]}` },
     });
   }
 
-  // Add the kid's photo
-  content.push({
+  contentParts.push({
     type: 'text',
-    text: "Now here's the photo the kids just took. Compare it to the reference images and visual identifiers:",
+    text: "Now here's the photo the kids just took:",
   });
-  content.push({
-    type: 'image',
-    source: {
-      type: 'base64',
-      media_type: 'image/jpeg',
-      data: photo,
-    },
+  contentParts.push({
+    type: 'image_url',
+    image_url: { url: `data:image/jpeg;base64,${photo}` },
   });
 
-  content.push({
+  contentParts.push({
     type: 'text',
-    text: 'Analyze this photo and respond with JSON as specified in the system prompt.',
+    text: 'Analyze this photo and respond with JSON as specified.',
   });
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 500,
-    system: systemPrompt,
-    messages: [
-      {
-        role: 'user',
-        content,
-      },
-    ],
+  const response = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 500,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contentParts },
+      ],
+    }),
   });
 
-  const textContent = response.content.find((c) => c.type === 'text');
-  const responseText = textContent?.type === 'text' ? textContent.text : '';
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API ${response.status}: ${errorText.substring(0, 100)}`);
+  }
 
-  // Parse JSON response
+  const data = await response.json();
+  const responseText = data.choices?.[0]?.message?.content || '';
+
   try {
-    // Extract JSON from response (might be wrapped in markdown)
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const result = JSON.parse(jsonMatch[0]) as VerificationResult;
-      return result;
+      return JSON.parse(jsonMatch[0]) as VerificationResult;
     }
   } catch (error) {
     console.error('Failed to parse verification response:', error);
   }
 
-  // Fallback response
   return {
     matches: [],
     confidence: 0,
@@ -185,7 +172,6 @@ export function getFollowUpQuestion(stopNumber: number): string {
   if (!clue?.followUpQuestions?.length) {
     return "Tell me what you see around you!";
   }
-  // Random question from the pool
   const randomIndex = Math.floor(Math.random() * clue.followUpQuestions.length);
   return clue.followUpQuestions[randomIndex];
 }

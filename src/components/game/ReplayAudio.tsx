@@ -30,11 +30,11 @@ export default function ReplayAudio({ onReplay, isPlaying = false, onStop, class
       className={`
         flex items-center justify-center gap-2
         min-w-[140px] px-5 py-3
-        glass-indigo rounded-full
-        border border-star-gold/30
-        text-star-gold text-sm font-medium
+        glass-light rounded-full
+        border border-amber-200
+        text-amber-700 text-sm font-medium
         transition-all duration-300
-        hover:border-star-gold/60 hover:bg-star-gold/10
+        hover:border-amber-600/60 hover:bg-amber-100/50
         active:scale-95
         ${isPlaying ? 'ring-2 ring-star-gold/30' : ''}
         ${className}
